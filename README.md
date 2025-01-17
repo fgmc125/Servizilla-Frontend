@@ -35,7 +35,7 @@ El objetivo principal del frontend es proporcionar una interfaz moderna y fácil
 1. Clona el repositorio:
    ```bash
    git clone https://github.com/fgmc125/Servizilla-Frontend.git
-  cd project
+   cd project
    ```
 2. Crea un entorno virtual e instálalo:
     ```bash
@@ -54,16 +54,22 @@ El objetivo principal del frontend es proporcionar una interfaz moderna y fácil
 ## Estructura del Proyecto
   ```bash
   frontend/
-  ├── main.py            # Archivo principal para ejecutar la aplicación
-  ├── pages/             # Carpeta para las diferentes páginas de la aplicación
-  │   ├── login.py       # Página de inicio de sesión
-  │   ├── services.py    # Página de listado y gestión de servicios
-  │   ├── requests.py    # Página de solicitudes
-  │   └── profile.py     # Página de perfil de usuario
-  ├── components/        # Componentes reutilizables (botones, tarjetas, etc.)
-  ├── assets/            # Recursos estáticos como imágenes e íconos
-  ├── utils/             # Funciones auxiliares (e.g., manejo de tokens, API calls)
-  ├── requirements.txt   # Dependencias del proyecto
+    ├── src/                     # Carpeta principal del código fuente
+    │    ├── assets/             # Recursos estáticos como imágenes e íconos
+    │    ├── components/         # Componentes reutilizables (botones, tarjetas, etc.)
+    │    ├── layouts/            # Layouts o plantillas generales para las páginas
+    │    ├── helpers/            # Funciones auxiliares para manejar lógica común
+    │    ├── pages/              # Carpeta para las diferentes páginas de la aplicación
+    │    │    ├── login.py       # Página de inicio de sesión
+    │    │    ├── services.py    # Página de listado y gestión de servicios
+    │    │    ├── requests.py    # Página de solicitudes
+    │    │    └── profile.py     # Página de perfil de usuario
+    │    ├── routes/             # Definición de rutas para navegación
+    │    ├── services/           # Lógica para las llamadas a la API
+    │    ├── utils/              # Funciones utilitarias (e.g., manejo de tokens, configuración)
+    │    ├── project.log         # Archivo de registro del proyecto
+    ├── main.py                  # Archivo principal para ejecutar la aplicación
+    ├── requirements.txt         # Dependencias del proyecto
   ```
 
 ## Conexión con el Backend
