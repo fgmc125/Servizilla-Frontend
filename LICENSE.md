@@ -1,4 +1,4 @@
-Licencia de Uso Propietaria para el Proyecto "Plataforma de Servicios Comunitarios"
+## Licencia de Uso Propietaria para el Proyecto "Servizilla Plataforma de Servicios Comunitarios" 
 1. **Propiedad Intelectual**
    Este software y todo su contenido, incluido el código fuente, documentación, diseño y cualquier otro elemento relacionado, son propiedad exclusiva de Reploid IT. Toda obra aquí contenida es original y desarrollada por sus autores, quienes mantienen todos los derechos sobre ella.
 
