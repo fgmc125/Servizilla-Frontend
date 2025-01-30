@@ -2,11 +2,11 @@ import logging
 
 import flet as ft
 
-from handlers.RouteHandler import RouteHandler
-from handlers.LayoutHandler import LayoutHandler
-from handlers.SessionHandler import SessionHandler
-from handlers.ResizeHandler import ResizeHandler
-from handlers.StateHandler import StateHandler
+from handlers.route_handler import RouteHandler
+from handlers.layout_handler import LayoutHandler
+from handlers.session_handler import SessionHandler
+from handlers.resize_handler import ResizeHandler
+from handlers.state_handler import StateHandler
 
 
 class AppManager:
@@ -15,7 +15,7 @@ class AppManager:
         if not hasattr(self, 'initialized'):
             self.logger = logging.getLogger(self.__class__.__name__)
             self.logger.debug("Initializing AppManager")
-            self.page = None
+            self.page: ft.Page or None = None
             self.view_container = None
 
             self.build_view_container()
