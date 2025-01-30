@@ -72,11 +72,11 @@ El objetivo principal del frontend es proporcionar una interfaz moderna y fácil
   │   ├── managers/                 # Objetos para manejar lógica principal y el flujo del sistema.
   │   │   └── app_manager.py        # Orquestador principal que controla el estado y las interacciones.
   │   ├── helpers/                  # Objetos para manejar lógica común.
-  │   │   └── LayoutHandler.py      # Manejador para actualizar y coordinar cambios en los layouts.
-  │   │   └── ResizeHandler.py      # Manejador de eventos de cambio de tamaño de ventana.
-  │   │   └── RouteHandler.py       # Manejador de rutas dinámicas.
-  │   │   └── SessionHandler.py     # Manejador del estado de sesión y autenticación.
-  │   │   └── StateHandler.py       # Manejador del estado global de la aplicación.
+  │   │   └── layout_handler.py      # Manejador para actualizar y coordinar cambios en los layouts.
+  │   │   └── resize_handler.py      # Manejador de eventos de cambio de tamaño de ventana.
+  │   │   └── route_handler.py       # Manejador de rutas dinámicas.
+  │   │   └── session_handler.py     # Manejador del estado de sesión y autenticación.
+  │   │   └── state_handler.py       # Manejador del estado global de la aplicación.
   │   ├── contents/                 # Contenido cargado dinámicamente dentro de los layouts.
   │   │   ├── login.py              # Contenido para la autenticación (inicio de sesión).
   │   │   ├── signup.py             # Contenido para el registro de usuarios.
