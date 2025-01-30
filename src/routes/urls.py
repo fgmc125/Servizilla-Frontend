@@ -1,5 +1,6 @@
 # Pages
 from contents.miscellaneous import code_401, code_404, code_500, code_503
+from contents.login import login_page
 
 # Layouts
 from layouts.common_layout import CommonLayout
@@ -11,6 +12,7 @@ routes = {
     # "/home": {"page": home_page, "protected": False, "layout": CommonLayout},
 
     # Auth contents
+    "/login": {"page": login_page, "protected": False, "layout": CommonLayout},
 
     # Miscellaneous
     "/401": {"page": code_401, "protected": False, "layout": CommonLayout},

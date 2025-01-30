@@ -15,7 +15,7 @@ class AppManager:
         if not hasattr(self, 'initialized'):
             self.logger = logging.getLogger(self.__class__.__name__)
             self.logger.debug("Initializing AppManager")
-            self.page = None
+            self.page: ft.Page or None = None
             self.view_container = None
 
             self.build_view_container()

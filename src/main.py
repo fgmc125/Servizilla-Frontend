@@ -1,6 +1,7 @@
 import logging
 
 from flet import Page, app
+from flet.core.types import AppView
 
 try:
     from utils.logger import setup_logger
@@ -8,7 +9,6 @@ try:
 except:
     from utils.logger import setup_logger
     from managers.app_manager import AppManager
-
 
 logger = setup_logger(__name__, level=logging.DEBUG, log_to_file=False)
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     app(
         target=main,
         assets_dir="assets",
-        view=None,  # view=AppView.WEB_BROWSER
+        view=AppView.WEB_BROWSER,
         port=8000,
-        host="0.0.0.0"
+        host="127.0.0.1"
     )

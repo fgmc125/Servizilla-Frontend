@@ -1,10 +1,5 @@
 class UserData:
     def __init__(self, **kwargs):
-        self.name = kwargs.get("name")
-        self.last_name = kwargs.get("last_name")
-        self.document_number = kwargs.get("document_number")
-        self.gender = kwargs.get("gender")
-
         self.access_token = kwargs.get("access_token")
         self.refresh_token = kwargs.get("refresh_token")
 
@@ -18,7 +13,6 @@ class SessionHandler:
         self.app_manager = app_manager
 
         self.user_data: UserData or None = None
-
 
     @property
     def is_authenticated(self):
@@ -46,7 +40,7 @@ class SessionHandler:
         pass
 
     def signup(self, **user_data):
-       pass
+        pass
 
     def load_token(self):
         pass
