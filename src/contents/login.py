@@ -3,9 +3,7 @@ import asyncio
 import flet as ft
 
 from contents.content import PageContainer
-
 from utils.style_helper import label_style, text_style, primary_button_style
-
 from controllers.login_controller import LoginController
 
 
@@ -187,18 +185,17 @@ class LoginPage(PageContainer):
                 self.password_input.value.strip()
             )
 
-            if response["success"]:
+            if not response["success"]:
                 self.state.set("is_processing", False)
-                self.state.set("field_errors", {})
-                self.state.set("general_error", None)
-                self._app_manager.state_handler.set("is_authenticated", True)
-                self._app_manager.page.go("/home")
-            else:
-                self.state.set("is_processing", False)
-                if "field_errors" in response:
-                    self.state.set("field_errors", response["field_errors"])
-                else:
-                    self.state.set("general_error", response["message"])
+                self.state.set("field_errors", response.get("field_errors", {}))
+                self.state.set("general_error", response.get("general_error"))
+                self.update_ui()
+                return
+
+            self.state.set("is_processing", False)
+            self.state.set("field_errors", {})
+            self.state.set("general_error", None)
+            self._app_manager.page.go("/home")
 
             self.update_ui()
 
@@ -208,15 +205,12 @@ class LoginPage(PageContainer):
         self.login_button.disabled = self.state.get("is_processing")
         self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
 
-        field_errors = self.state.get("field_errors") or {}
-
         self.username_input.error_text = self.state.get("field_errors").get("username", None)
         self.password_input.error_text = self.state.get("field_errors").get("password", None)
 
         self.username_input.update()
         self.password_input.update()
         self.login_button.update()
-        # self.error_message_text.update()
 
     def _build_header(self, title, subtitle):
         text_title = ft.Text(

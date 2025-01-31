@@ -9,7 +9,8 @@ authors = [
     { name = "Dante Martínez", email = "yodante@gmail.com" },
 ]
 dependencies = [
-  "flet==0.26.0"
+    "flet[all]==0.26.0",
+    "requests==2.32.3",
 ]
 
 [tool.flet]
@@ -36,7 +37,7 @@ dev-dependencies = [
 ]
 
 [tool.poetry]
-package-mode = true
+package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-flet = {extras = ["all"], version = "0.26.0"}
+flet = { extras = ["all"], version = "0.26.0" }

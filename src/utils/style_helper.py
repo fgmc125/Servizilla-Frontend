@@ -19,7 +19,7 @@ primary_button_style = ft.ButtonStyle(
     },
     color={
         ft.ControlState.DISABLED: "#7C89B0",
-        ft.ControlState.DEFAULT: ft.colors.WHITE,
+        ft.ControlState.DEFAULT: ft.Colors.WHITE,
     },
     text_style=ft.TextStyle(
         size=16,
@@ -27,7 +27,7 @@ primary_button_style = ft.ButtonStyle(
         font_family="Plus Jakarta Sans",
     ),
     side=ft.BorderSide(
-        color=ft.colors.TRANSPARENT,
+        color=ft.Colors.TRANSPARENT,
         width=1,
     ),
     elevation=1,
