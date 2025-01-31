@@ -1,11 +1,12 @@
 import httpx
-import socket
+
 
 BASE_URL = "https://playground5.pythonanywhere.com/auth"
 
 
 class AuthService:
-    async def login(self, username: str, password: str) -> dict:
+    @staticmethod
+    async def login(username: str, password: str) -> dict:
         url = f"{BASE_URL}/login/"
         payload = {
             "username": username,
@@ -51,3 +52,4 @@ class AuthService:
                     "error": f"Error de conexión: {str(e)}",
                     "status_code": 0
                 }
+

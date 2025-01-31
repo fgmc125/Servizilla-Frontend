@@ -1,5 +1,5 @@
-import asyncio
 from services.auth_service import AuthService
+
 
 class LoginController:
     def __init__(self, app_manager):
@@ -20,7 +20,7 @@ class LoginController:
             error_data["field_errors"]["password"] = "La contraseña es obligatoria."
 
         if password and len(password) < 8:
-            error_data["field_errors"]["password"] = "La contraseña debe tener al menos 6 caracteres."
+            error_data["field_errors"]["password"] = "La contraseña debe tener al menos 8 caracteres."
 
         if error_data["field_errors"]:
             return error_data

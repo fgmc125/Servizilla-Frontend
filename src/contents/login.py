@@ -106,8 +106,6 @@ class LoginPage(PageContainer):
             margin=ft.margin.only(bottom=8),
         )
 
-        self.error_message_text = ft.Text(color="red")
-
         column_child = ft.Column(
             controls=[
                 self._build_header(
@@ -175,6 +173,17 @@ class LoginPage(PageContainer):
 
         self.content = container
 
+    def update_ui(self):
+        self.login_button.disabled = self.state.get("is_processing")
+        self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
+
+        self.username_input.error_text = self.state.get("field_errors").get("username", None)
+        self.password_input.error_text = self.state.get("field_errors").get("password", None)
+
+        self.username_input.update()
+        self.password_input.update()
+        self.login_button.update()
+
     def on_login_click(self, e):
         self.state.set("is_processing", True)
         self.update_ui()
@@ -200,17 +209,6 @@ class LoginPage(PageContainer):
             self.update_ui()
 
         asyncio.run(process_login())
-
-    def update_ui(self):
-        self.login_button.disabled = self.state.get("is_processing")
-        self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
-
-        self.username_input.error_text = self.state.get("field_errors").get("username", None)
-        self.password_input.error_text = self.state.get("field_errors").get("password", None)
-
-        self.username_input.update()
-        self.password_input.update()
-        self.login_button.update()
 
     def _build_header(self, title, subtitle):
         text_title = ft.Text(
