@@ -3,7 +3,7 @@ from contents.miscellaneous import code_401, code_404, code_500, code_503
 from contents.login import login_page
 from contents.signup import signup_page
 
-from contents.Demo import product_catalog_page
+from contents.service_list import product_catalog_page
 from contents.dashboard import seller_dashboard_page
 
 # Layouts

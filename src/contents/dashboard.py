@@ -1,131 +1,198 @@
+import asyncio
 import flet as ft
+from contents.content import PageContainer
+from controllers.dashboard_controller import ServicesController
 
-class SellerDashboardPage(ft.UserControl):
+from utils.style_helper import input_text_style, input_label_style, button_style_submit
+
+
+class ServicesTablePage(PageContainer):
     def __init__(self, app_manager):
         super().__init__()
-        self.app_manager = app_manager
-        self.services_list = []  # Placeholder for the list of services
+        self._app_manager = app_manager
+        self.controller = ServicesController(app_manager)
+
+        self.elements_by_page = ft.Dropdown(
+            label="Cantidad de Elementos",
+            hint_text="SELECCIONE CANTIDAD",
+            options=[
+                ft.dropdown.Option(key="5", text="5"),
+                ft.dropdown.Option(key="10", text="10"),
+                ft.dropdown.Option(key="15", text="15"),
+            ],
+            value="5",
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=1,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            label_style=input_label_style,
+        )
+        self.state_filter = ft.Dropdown(
+            label="Filto por Estado",
+            hint_text="SELECCIONE UN FILTRO",
+            options=[
+                ft.dropdown.Option(key="T", text="TODOS"),
+                ft.dropdown.Option(key="A", text="ACTIVOS"),
+                ft.dropdown.Option(key="I", text="INACTIVOS"),
+            ],
+            value="T",
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=1,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            label_style=input_label_style,
+        )
+        self.search = ft.TextField(
+            label="Buscar Servicio",
+            value="",
+            color="#57636c",
+            label_style=input_label_style,
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=2,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            expand=1,
+        )
+        self.new_service_button = ft.FilledButton(
+            "Nuevo Servicio",
+            style=button_style_submit,
+            height=42,
+            on_click=self.on_new_service_click,
+        )
+
+
+        self.state.register("is_processing", False)
+        self.state.register("services", [])
+        self.state.register("field_errors", {})
+        self.state.register("general_error", None)
+
+        self.state.subscribe("is_processing", self.update_ui)
+        self.state.subscribe("services", self.update_ui)
+        self.state.subscribe("field_errors", self.update_ui)
+
+        self.table_content = self._build_table()
+
         self.build_ui()
 
     def build_ui(self):
-        self.sidebar = self._build_sidebar()
-        self.header = self._build_header()
-        self.content = self._build_content()
-
-        self.layout = ft.Row(
+        filter_row = ft.Row(
             controls=[
-                self.sidebar,
-                ft.Column(
+                self.elements_by_page,
+                self.state_filter,
+                self.search,
+            ],
+            spacing=10,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
+
+        pagination = self._build_pagination()
+
+        layout = ft.Column(
+            controls=[
+                ft.Text(
+                    "Gestión de Servicios",
+                    size=24,
+                    weight=ft.FontWeight.BOLD,
+                    color="black",
+                ),
+                ft.Row(
                     controls=[
-                        self.header,
-                        self.content
+                        self.new_service_button
                     ],
-                    expand=True,
-                )
+                    alignment=ft.MainAxisAlignment.END,
+                ),
+                filter_row,
+                self.table_content,
+                pagination,
             ],
-            expand=True
+            spacing=20,
+            expand=True,
+        )
+        container = ft.Container(
+            content=layout,
+            margin=ft.margin.all(20),
+            padding=ft.padding.all(30),
+            bgcolor="white",
+            border_radius=10
         )
 
-        self.controls = [self.layout]
+        self.content = container
 
-    def _build_sidebar(self):
-        return ft.Container(
-            content=ft.Column(
-                controls=[
-                    ft.Text("Servizilla", size=24, weight=ft.FontWeight.BOLD, color="white"),
-                    ft.Divider(),
-                    ft.ListTile(leading=ft.Icon(ft.icons.HOME), title=ft.Text("Resumen")),
-                    ft.ListTile(leading=ft.Icon(ft.icons.LIST), title=ft.Text("Mis Servicios")),
-                    ft.ListTile(leading=ft.Icon(ft.icons.MESSAGE), title=ft.Text("Mensajes")),
-                    ft.Divider(),
-                    ft.Container(
-                        content=ft.Text(
-                            "¿Necesitas ayuda? Puedes visitar el registro de preguntas frecuentes o el asistente de ayuda.",
-                            size=12, color="white"
-                        ),
-                        bgcolor="#7C4DFF",
-                        border_radius=8,
-                        padding=10,
-                        margin=10,
-                    ),
-                    ft.ElevatedButton("AYUDACIÓN", bgcolor="#7C4DFF", color="white")
-                ],
-                alignment=ft.MainAxisAlignment.START,
-                expand=True
-            ),
-            width=240,
-            bgcolor="#2C2F48",
-            padding=20,
-        )
-
-    def _build_header(self):
-        return ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.Text("Servicios", size=24, weight=ft.FontWeight.BOLD, color="white"),
-                    ft.ElevatedButton(
-                        "Nuevo Servicio",
-                        bgcolor="#964BF8",
-                        color="white",
-                        on_click=self._on_new_service_click,
-                    )
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-            ),
-            bgcolor="#1A1D2E",
-            padding=20
-        )
-
-    def _build_content(self):
-        # Placeholder for services list
-        self.services_column = ft.Column(
+    def _build_table(self):
+        table_header = ft.Row(
             controls=[
-                self._build_service_item(index) for index in range(5)  # Example items
+                ft.Text("Nombre", weight=ft.FontWeight.BOLD, width=200, color="black"),
+                ft.Text("Estado", weight=ft.FontWeight.BOLD, width=100, color="black"),
+                ft.Text("Acciones", weight=ft.FontWeight.BOLD, width=300, color="black"),
             ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
+
+        table_rows = [
+            self._build_table_row(service) for service in self.state.get("services")
+        ]
+
+        return ft.Column(
+            controls=[table_header] + table_rows,
             spacing=10,
         )
 
-        return ft.Container(
-            content=self.services_column,
-            bgcolor="#1A1D2E",
-            padding=20,
-            border_radius=8,
-            expand=True
+    def _build_table_row(self, service):
+        return ft.Row(
+            controls=[
+                ft.Text(service["name"], width=200, color="black"),
+                ft.Text(service["status"], width=100, color="black"),
+                ft.Row(
+                    controls=[
+                        ft.IconButton(icon=ft.icons.VISIBILITY, icon_color="white", bgcolor="#64B5F6"),
+                        ft.IconButton(icon=ft.icons.EDIT, icon_color="white", bgcolor="#FFD54F"),
+                        ft.IconButton(icon=ft.icons.DELETE, icon_color="white", bgcolor="#FF5252"),
+                    ],
+                    spacing=10,
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
-    def _build_service_item(self, index):
-        return ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.Image(src="https://via.placeholder.com/80", width=80, height=80),
-                    ft.Column(
-                        controls=[
-                            ft.Text(f"Servicio de ejemplo {index}", size=18, weight=ft.FontWeight.BOLD, color="white"),
-                            ft.Text("Descripción del servicio", size=14, color="white")
-                        ]
-                    ),
-                    ft.Row(
-                        controls=[
-                            ft.ElevatedButton("Editar", bgcolor="#964BF8", color="white"),
-                            ft.ElevatedButton("Desactivar", bgcolor="#FF5252", color="white")
-                        ],
-                        spacing=10
-                    )
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-            ),
-            bgcolor="#2C2F48",
-            border_radius=8,
-            padding=10,
-            margin=5
+    def _build_pagination(self):
+        return ft.Row(
+            controls=[
+                ft.ElevatedButton("<", bgcolor="#2C2F48", color="white"),
+                ft.ElevatedButton(text="1", color="black", bgcolor="#E0E0E0"),
+                ft.ElevatedButton(text="2", color="black", bgcolor="#E0E0E0"),
+                ft.ElevatedButton(text="3", color="black", bgcolor="#E0E0E0"),
+                ft.ElevatedButton(text="4", color="black", bgcolor="#E0E0E0"),
+                ft.ElevatedButton(">", bgcolor="#2C2F48", color="white"),
+            ],
+            spacing=5,
+            alignment=ft.MainAxisAlignment.CENTER,
         )
 
-    def _on_new_service_click(self, event):
+    def update_ui(self, state_key=None, value=None):
+        if state_key == "services":
+            self.table_content.controls = [
+                self._build_table_row(service) for service in value
+            ]
+            self.table_content.update()
+
+    def on_new_service_click(self, e):
         print("Nuevo servicio creado")
 
-    def build(self):
-        return self.layout
+    def on_search_click(self, e):
+        self.state.set("is_processing", True)
+        asyncio.run(self.controller.fetch_services())
+        self.state.set("is_processing", False)
 
 
 def seller_dashboard_page(app_manager):
-    return SellerDashboardPage(app_manager)
+    app_manager.page.title = "Gestión de Servicios"
+    return ServicesTablePage(app_manager)

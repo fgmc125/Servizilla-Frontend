@@ -48,7 +48,7 @@ class AppManager:
         self.page.title = "Mi App Prototipo"
         self.page.spacing = 0
         self.page.padding = ft.padding.all(0)
-        self.page.bgcolor = '#F5F5F9'
+        self.page.bgcolor = '#F4F5F6'
         self.page.expand = True
 
         self.logger.debug("Configuring AppBar and view container")
@@ -88,4 +88,4 @@ class AppManager:
         return self.route_handler.routes.get(route, {})
 
     def authenticate(self, user: str, password: str):
-        return True
+        return self.state_handler.get("is_authenticated")
