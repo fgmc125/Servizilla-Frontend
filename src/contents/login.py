@@ -25,7 +25,7 @@ class LoginPage(PageContainer):
             border_width=2,
             filled=True,
             fill_color="#f1f4f8",
-            focused_border_color="#45BE88",
+            focused_border_color="#964BF8",
         )
         self.password_input = ft.TextField(
             label="Contraseña",
@@ -38,7 +38,7 @@ class LoginPage(PageContainer):
             border_width=2,
             filled=True,
             fill_color="#f1f4f8",
-            focused_border_color="#45BE88",
+            focused_border_color="#964BF8",
             can_reveal_password=True,
         )
         self.remember_me = ft.Checkbox(
@@ -47,7 +47,7 @@ class LoginPage(PageContainer):
         )
         self.forgot_password_button = ft.TextButton(
             text="¿Olvidaste tu contraseña?",
-            style=ft.ButtonStyle(color="#45BE88"),
+            style=ft.ButtonStyle(color="#964BF8"),
         )
         self.login_button = ft.FilledButton(
             text="Acceder",
@@ -66,13 +66,17 @@ class LoginPage(PageContainer):
         self.signup_text_button = ft.TextButton(
             text="Regístrate aquí",
             on_click=lambda e: app_manager.go("/auth/signup"),
-            style=ft.ButtonStyle(color="#45BE88")
+            style=ft.ButtonStyle(color="#964BF8")
         )
 
         self.state.register("is_view_loading", False)
         self.state.register("is_processing", False)
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
+
+        self.state.subscribe("is_processing", self.update_ui)
+        self.state.subscribe("field_errors", self.update_ui)
+        self.state.subscribe("general_error", self.update_ui)
 
         self.build_ui()
 
@@ -173,12 +177,22 @@ class LoginPage(PageContainer):
 
         self.content = container
 
-    def update_ui(self):
-        self.login_button.disabled = self.state.get("is_processing")
-        self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
+    def update_ui(self, state_key=None, value=None):
+        if state_key is None or state_key not in ["is_processing", "field_errors"]:
+            self.login_button.disabled = self.state.get("is_processing")
+            self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
 
-        self.username_input.error_text = self.state.get("field_errors").get("username", None)
-        self.password_input.error_text = self.state.get("field_errors").get("password", None)
+            self.username_input.error_text = self.state.get("field_errors").get("username", None)
+            self.password_input.error_text = self.state.get("field_errors").get("password", None)
+
+        else:
+            if state_key == "is_processing":
+                self.login_button.disabled = value
+                self.login_button.text = "Verificando..." if value else "Acceder"
+
+            elif state_key == "field_errors":
+                self.username_input.error_text = value.get("username", None)
+                self.password_input.error_text = value.get("password", None)
 
         self.username_input.update()
         self.password_input.update()
@@ -186,7 +200,6 @@ class LoginPage(PageContainer):
 
     def on_login_click(self, e):
         self.state.set("is_processing", True)
-        self.update_ui()
 
         async def process_login():
             response = await self.controller.login(
@@ -198,15 +211,12 @@ class LoginPage(PageContainer):
                 self.state.set("is_processing", False)
                 self.state.set("field_errors", response.get("field_errors", {}))
                 self.state.set("general_error", response.get("general_error"))
-                self.update_ui()
                 return
 
             self.state.set("is_processing", False)
             self.state.set("field_errors", {})
             self.state.set("general_error", None)
             self._app_manager.page.go("/home")
-
-            self.update_ui()
 
         asyncio.run(process_login())
 
@@ -215,7 +225,7 @@ class LoginPage(PageContainer):
             value=title,
             size=32,
             weight=ft.FontWeight.W_600,
-            color="#7C89B0",
+            color="#964BF8",
             font_family="Urbanist",
             selectable=True
         )

@@ -15,7 +15,7 @@ text_style = ft.TextStyle(
 primary_button_style = ft.ButtonStyle(
     bgcolor={
         ft.ControlState.DISABLED: "#f1f4f8",
-        ft.ControlState.DEFAULT: "#45BE88"
+        ft.ControlState.DEFAULT: "#964BF8",
     },
     color={
         ft.ControlState.DISABLED: "#7C89B0",

@@ -1,6 +1,5 @@
 import httpx
 
-
 BASE_URL = "https://playground5.pythonanywhere.com/auth"
 
 
@@ -16,7 +15,15 @@ class AuthService:
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(url, json=payload)
-                data = response.json()
+
+                try:
+                    data = response.json()
+                except ValueError:
+                    return {
+                        "success": False,
+                        "error": "Error inesperado en el servidor.",
+                        "status_code": response.status_code
+                    }
 
                 if response.status_code == 200:
                     return {
@@ -53,3 +60,58 @@ class AuthService:
                     "status_code": 0
                 }
 
+    @staticmethod
+    async def signup(username: str, password: str, email: str) -> dict:
+        url = f"{BASE_URL}/register/"
+        payload = {
+            "username": username,
+            "password": password,
+            "email": email
+        }
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(url, json=payload)
+
+                try:
+                    data = response.json()
+                except ValueError:
+                    return {
+                        "success": False,
+                        "error": "Error inesperado en el servidor.",
+                        "status_code": response.status_code
+                    }
+
+                if response.status_code == 201:
+                    return {
+                        "success": True,
+                        "message": "Registro exitoso"
+                    }
+
+                elif response.status_code == 409:
+                    return {
+                        "success": False,
+                        "error": data.get("error", "Error desconocido."),
+                        "status_code": 409
+                    }
+
+                elif response.status_code == 422:
+                    return {
+                        "success": False,
+                        "field_errors": data,
+                        "status_code": 422
+                    }
+
+                else:
+                    return {
+                        "success": False,
+                        "error": data.get("error", "Error desconocido."),
+                        "status_code": response.status_code
+                    }
+
+            except httpx.RequestError as e:
+                return {
+                    "success": False,
+                    "error": f"Error de conexión: {str(e)}",
+                    "status_code": 0
+                }

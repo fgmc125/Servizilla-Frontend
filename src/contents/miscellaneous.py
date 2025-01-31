@@ -1,7 +1,7 @@
 from flet import (
     BorderSide, ButtonStyle, Column, Container, CrossAxisAlignment, ElevatedButton, FontWeight,
     MainAxisAlignment, Page, RoundedRectangleBorder, Row, Text, TextAlign, TextButton, TextStyle,
-    alignment, app, colors, margin, padding
+    alignment, app, Colors, margin, padding
 )
 
 
@@ -55,7 +55,7 @@ def create_error_page(app_manager, code, title, message):
             on_click=lambda e: app_manager.page.go("/home"),
             style=ButtonStyle(
                 bgcolor="#964BF8",
-                color=colors.WHITE,
+                color=Colors.WHITE,
                 padding=padding.only(bottom=8, top=8, left=20, right=20),
                 text_style=TextStyle(
                     size=16,
@@ -63,7 +63,7 @@ def create_error_page(app_manager, code, title, message):
                     font_family="Plus Jakarta Sans",
                 ),
                 side=BorderSide(
-                    color=colors.TRANSPARENT,
+                    color=Colors.TRANSPARENT,
                     width=1,
                 ),
                 elevation=3,

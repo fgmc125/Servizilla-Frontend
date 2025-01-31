@@ -46,7 +46,7 @@ class StateHandler:
             logger.warning(f"No hay suscriptores para el estado: '{key}'")
         for callback in subscribers:
             try:
-                callback(value)
+                callback(key, value)
                 logger.debug(f"Suscriptor notificado para el estado '{key}' con valor: {value}")
             except Exception as e:
                 logger.error(f"Error notificando al suscriptor en la clave '{key}': {e}")

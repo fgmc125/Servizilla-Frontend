@@ -86,7 +86,7 @@ El objetivo principal del frontend es proporcionar una interfaz moderna y fácil
   │   ├── routes/                   # Definición de rutas para navegación.
   │   │   └── routes.py             # Archivo que define las rutas de la aplicación.
   │   ├── services/                 # Lógica para las llamadas a la API.
-  │   │   └── api_client.py         # Cliente para realizar peticiones al backend.
+  │   │   └── api_services.py         # Cliente para realizar peticiones al backend.
   │   ├── utils/                    # Funciones utilitarias (e.g., manejo de tokens, configuración).
   │   │   └── logger.py             # Herramienta para registrar eventos y errores.
   │   ├── project.log               # Archivo de registro con eventos y errores del proyecto.

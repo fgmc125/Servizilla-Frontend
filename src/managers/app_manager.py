@@ -54,7 +54,7 @@ class AppManager:
         self.logger.debug("Configuring AppBar and view container")
         self.page.appbar = ft.AppBar(
             toolbar_height=5,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor=ft.Colors.SURFACE
         )
         self.safe_area = ft.SafeArea(content=self.view_container, expand=True)
 
