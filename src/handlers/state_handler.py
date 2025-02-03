@@ -16,6 +16,7 @@ class StateHandler:
             }
             logger.debug(f"Estado registrado: '{key}' con valor inicial: {initial_value}")
         else:
+            # self.set(key, initial_value)
             logger.warning(f"Intento de registrar un estado existente: '{key}'")
 
     def subscribe(self, key: str, callback, value=None):
@@ -33,7 +34,7 @@ class StateHandler:
 
     def set(self, key: str, value):
         if key not in self.states:
-            self.register(key)
+            self.register(key, value)
             logger.info(f"Estado no registrado previamente. Registrado automáticamente: '{key}'")
         old_value = self.states[key]['value']
         self.states[key]['value'] = value

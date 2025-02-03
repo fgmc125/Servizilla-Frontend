@@ -1,5 +1,8 @@
 import asyncio
+import logging
+
 import flet as ft
+
 from contents.content import PageContainer
 from controllers.dashboard_controller import ServicesController
 
@@ -9,6 +12,8 @@ from utils.style_helper import input_text_style, input_label_style, button_style
 class ServicesTablePage(PageContainer):
     def __init__(self, app_manager):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self._app_manager = app_manager
         self.controller = ServicesController(app_manager)
 
@@ -69,19 +74,22 @@ class ServicesTablePage(PageContainer):
             on_click=self.on_new_service_click,
         )
 
-
         self.state.register("is_processing", False)
-        self.state.register("services", [])
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
 
+        self.state.register("services_data", {})
+
         self.state.subscribe("is_processing", self.update_ui)
-        self.state.subscribe("services", self.update_ui)
         self.state.subscribe("field_errors", self.update_ui)
+        self.state.subscribe("general_error", self.update_ui)
+
+        self.state.subscribe("services_data", self.update_ui)
 
         self.table_content = self._build_table()
 
         self.build_ui()
+        self._fetch_services()
 
     def build_ui(self):
         filter_row = ft.Row(
@@ -138,7 +146,7 @@ class ServicesTablePage(PageContainer):
         )
 
         table_rows = [
-            self._build_table_row(service) for service in self.state.get("services")
+            self._build_table_row(service) for service in self.state.get("services_data")
         ]
 
         return ft.Column(
@@ -178,16 +186,18 @@ class ServicesTablePage(PageContainer):
         )
 
     def update_ui(self, state_key=None, value=None):
-        if state_key == "services":
-            self.table_content.controls = [
-                self._build_table_row(service) for service in value
-            ]
+        if state_key == "services_data":
+            self.logger.info(f"[update_ui] value: {type(value)} / {value}")
+
             self.table_content.update()
 
     def on_new_service_click(self, e):
         print("Nuevo servicio creado")
 
     def on_search_click(self, e):
+        self._fetch_services()
+
+    def _fetch_services(self):
         self.state.set("is_processing", True)
         asyncio.run(self.controller.fetch_services())
         self.state.set("is_processing", False)
