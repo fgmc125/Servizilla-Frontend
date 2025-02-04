@@ -26,6 +26,6 @@ routes = {
     "/503": {"page": code_503, "protected": False, "layout": CommonLayout},
 
     # Protected - Dashboard profile_page
-    "/dashboard": {"page": seller_dashboard_page, "protected": False, "layout": CommonLayout},
+    "/dashboard": {"page": seller_dashboard_page, "protected": True, "layout": CommonLayout},
     # Protected - Webapp
 }

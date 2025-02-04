@@ -20,3 +20,9 @@ class PageContainer(Container):
 
     def set_state(self, key, value):
         self.state.set(key, value)
+
+    def build_ui(self):
+        pass
+
+    def build_ui(self):
+        pass

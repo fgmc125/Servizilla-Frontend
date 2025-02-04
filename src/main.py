@@ -10,7 +10,7 @@ except:
     from utils.logger import setup_logger
     from managers.app_manager import AppManager
 
-logger = setup_logger(__name__, level=logging.DEBUG, log_to_file=False)
+logger = setup_logger(__name__, level=logging.INFO, log_to_file=False)
 
 
 def main(page: Page):
@@ -26,6 +26,6 @@ if __name__ == "__main__":
         target=main,
         assets_dir="assets",
         view=AppView.WEB_BROWSER,
-        port=8000,
+        port=8557,
         host="127.0.0.1"
     )

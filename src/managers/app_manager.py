@@ -85,13 +85,15 @@ class AppManager:
         self.layout_handler.load_layout(route, callback)
 
     def is_authenticated(self) -> bool:
-        return self.session_handler.is_authenticated
+        self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
+        return self.state_handler.get("is_authenticated")
 
     def get_route(self, route: str) -> ft.Container:
         self.logger.debug(f"Retrieving route configuration for: {route}")
         return self.route_handler.routes.get(route, {})
 
     def authenticate(self, user: str, password: str):
+        self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
         return self.state_handler.get("is_authenticated")
 
     # ------------------------------------------------------------------------------

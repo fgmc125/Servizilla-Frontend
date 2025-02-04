@@ -22,28 +22,37 @@ class APIService:
 
     @staticmethod
     async def list_services(
-        search: str = "", category_id: int = None,
-        created_at_min: str = None, created_at_max: str = None,
-        updated_at_min: str = None, updated_at_max: str = None,
-        page: int = 1, page_size: int = 10
+            token: str, search: str = "", category_id: int = None,
+            created_at_min: str = None, created_at_max: str = None,
+            updated_at_min: str = None, updated_at_max: str = None,
+            page: int = 1, page_size: int = 10, only_owner:bool =False,
+            oferente_id:int=None
     ) -> dict:
-        """Obtiene la lista de servicios con filtros opcionales."""
+        headers = {"Authorization": f"Bearer {token}"}
         url = f"{BASE_URL}/services/"
         params = {
-            "search": search,
-            "category_id": category_id,
+            "search": search.strip() if search else None,
+            "category_id": category_id if category_id else None,
             "created_at_min": created_at_min,
             "created_at_max": created_at_max,
             "updated_at_min": updated_at_min,
             "updated_at_max": updated_at_max,
             "page": page,
-            "page_size": page_size
+            "page_size": page_size,
+            "only_owner": only_owner,
+            "oferente_id": oferente_id
         }
-        params = {k: v for k, v in params.items() if v is not None}  # Remueve valores None
+        params = {k: v for k, v in params.items() if v is not None}
 
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, params=params)
-            return APIService._handle_response(response)
+            try:
+                response = await client.get(url, params=params, headers=headers)
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as e:
+                return {"error": f"HTTP Error {e.response.status_code}: {e.response.text}"}
+            except httpx.RequestError as e:
+                return {"error": f"Error en la solicitud: {str(e)}"}
 
     @staticmethod
     async def get_service_detail(service_id: int, token: str) -> dict:

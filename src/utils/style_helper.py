@@ -54,6 +54,6 @@ button_style_submit = ft.ButtonStyle(
         weight=ft.FontWeight.W_500,
         font_family="Plus Jakarta Sans"
     ),
-    side=ft.BorderSide(color=ft.colors.TRANSPARENT, width=1),
+    side=ft.BorderSide(color=ft.Colors.TRANSPARENT, width=1),
     shape=ft.RoundedRectangleBorder(radius=8),
 )
