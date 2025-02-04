@@ -5,6 +5,7 @@ from contents.signup import signup_page
 
 from contents.service_list import product_catalog_page
 from contents.dashboard import seller_dashboard_page
+from contents.add_service import add_service_page
 
 # Layouts
 from layouts.common_layout import CommonLayout
@@ -27,5 +28,6 @@ routes = {
 
     # Protected - Dashboard profile_page
     "/dashboard": {"page": seller_dashboard_page, "protected": True, "layout": CommonLayout},
+    "/services/new": {"page": add_service_page, "protected": True, "layout": CommonLayout},
     # Protected - Webapp
 }

@@ -110,8 +110,22 @@ class AppManager:
         self.page.client_storage.set(f"servizilla.{key}", value)
 
     def _get_token_stored(self):
-        access_token = self.page.client_storage.get("servizilla.access_token")
-        refresh_token = self.page.client_storage.get("servizilla.refresh_token")
+        self.logger.info(f"access_token 2: {self.page.client_storage.contains_key("servizilla.access_token")}")
+
+        access_token = None
+        refresh_token = None
+
+        if self.page.client_storage.contains_key("servizilla.access_token"):
+            access_token = self.page.client_storage.get("servizilla.access_token")
+
+        if self.page.client_storage.contains_key("servizilla.refresh_token"):
+            refresh_token = self.page.client_storage.get("servizilla.refresh_token")
+
+
+        self.state_handler.register("is_authenticated", access_token and refresh_token)
+
+        self.logger.info(f"access_token: {access_token}, refresh_token: {access_token}")
+        self.logger.info(f"KEYS: {self.page.client_storage.get_keys('servizilla.')}")
 
         self.state_handler.register("access_token", access_token)
         self.state_handler.register("refresh_token", refresh_token)

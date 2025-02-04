@@ -73,7 +73,7 @@ class ServicesTablePage(PageContainer):
             "Nuevo Servicio",
             style=button_style_submit,
             height=42,
-            on_click=self.on_new_service_click,
+            on_click=lambda e: self._app_manager.page.go("/services/new")
         )
 
         self.state.register("is_processing", False)
@@ -86,7 +86,6 @@ class ServicesTablePage(PageContainer):
         self.state.register("search_query", self.search.value or None)
         self.state.register("current_page", 1)
         self.state.register("total_pages", 0)
-
 
         self.state.subscribe("is_processing", self.update_ui)
         self.state.subscribe("field_errors", self.update_ui)
@@ -163,7 +162,7 @@ class ServicesTablePage(PageContainer):
 
         table_rows = []
         self.logger.info(f": [services] {len(self.state.get("services")) if self.state.get("services") else []}")
-        if self.state.get("services") and len(self.state.get("services")) >  0:
+        if self.state.get("services") and len(self.state.get("services")) > 0:
             self.logger.info(f": [services] {self.state.get("services")[0].keys()}")
             table_rows = [
                 self._build_table_row(service) for service in self.state.get("services")
