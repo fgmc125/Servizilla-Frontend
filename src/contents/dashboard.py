@@ -1,5 +1,8 @@
 import asyncio
+import logging
+
 import flet as ft
+
 from contents.content import PageContainer
 from controllers.dashboard_controller import ServicesController
 
@@ -9,8 +12,12 @@ from utils.style_helper import input_text_style, input_label_style, button_style
 class ServicesTablePage(PageContainer):
     def __init__(self, app_manager):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         self._app_manager = app_manager
         self.controller = ServicesController(app_manager)
+
+        self.content = None
 
         self.elements_by_page = ft.Dropdown(
             label="Cantidad de Elementos",
@@ -20,7 +27,7 @@ class ServicesTablePage(PageContainer):
                 ft.dropdown.Option(key="10", text="10"),
                 ft.dropdown.Option(key="15", text="15"),
             ],
-            value="5",
+            value=self.state.get("elements_by_page") or "5",
             text_style=input_text_style,
             border_radius=12,
             border_color="#f1f4f8",
@@ -30,8 +37,8 @@ class ServicesTablePage(PageContainer):
             focused_border_color=ft.Colors.PURPLE_300,
             label_style=input_label_style,
         )
-        self.state_filter = ft.Dropdown(
-            label="Filto por Estado",
+        self.category_filter = ft.Dropdown(
+            label="Filto por Categoría",
             hint_text="SELECCIONE UN FILTRO",
             options=[
                 ft.dropdown.Option(key="T", text="TODOS"),
@@ -69,25 +76,41 @@ class ServicesTablePage(PageContainer):
             on_click=self.on_new_service_click,
         )
 
-
         self.state.register("is_processing", False)
-        self.state.register("services", [])
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
 
+        self.state.register("services", {})
+        self.state.register("elements_by_page", self.elements_by_page.value or "5")
+        self.state.register("category_filter", self.category_filter.value or "T")
+        self.state.register("search_query", self.search.value or None)
+        self.state.register("current_page", 1)
+        self.state.register("total_pages", 0)
+
+
         self.state.subscribe("is_processing", self.update_ui)
-        self.state.subscribe("services", self.update_ui)
         self.state.subscribe("field_errors", self.update_ui)
+        self.state.subscribe("general_error", self.update_ui)
+
+        self.state.subscribe("services", self.update_ui)
+        self.state.subscribe("elements_by_page", self.update_ui)
+        self.state.subscribe("category_filter", self.update_ui)
+        self.state.subscribe("search_query", self.update_ui)
+        self.state.subscribe("current_page", self.update_ui)
+        self.state.subscribe("total_pages", self.update_ui)
+
+        self.state.subscribe("current_page", self._fetch_services)
 
         self.table_content = self._build_table()
 
+        self._fetch_services()
         self.build_ui()
 
     def build_ui(self):
         filter_row = ft.Row(
             controls=[
                 self.elements_by_page,
-                self.state_filter,
+                self.category_filter,
                 self.search,
             ],
             spacing=10,
@@ -131,15 +154,20 @@ class ServicesTablePage(PageContainer):
         table_header = ft.Row(
             controls=[
                 ft.Text("Nombre", weight=ft.FontWeight.BOLD, width=200, color="black"),
+                ft.Text("Categoría", weight=ft.FontWeight.BOLD, width=100, color="black"),
                 ft.Text("Estado", weight=ft.FontWeight.BOLD, width=100, color="black"),
                 ft.Text("Acciones", weight=ft.FontWeight.BOLD, width=300, color="black"),
             ],
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
-        table_rows = [
-            self._build_table_row(service) for service in self.state.get("services")
-        ]
+        table_rows = []
+        self.logger.info(f": [services] {len(self.state.get("services")) if self.state.get("services") else []}")
+        if self.state.get("services") and len(self.state.get("services")) >  0:
+            self.logger.info(f": [services] {self.state.get("services")[0].keys()}")
+            table_rows = [
+                self._build_table_row(service) for service in self.state.get("services")
+            ]
 
         return ft.Column(
             controls=[table_header] + table_rows,
@@ -147,10 +175,12 @@ class ServicesTablePage(PageContainer):
         )
 
     def _build_table_row(self, service):
+        self.logger.info(f": [TABLE] {service}")
         return ft.Row(
             controls=[
-                ft.Text(service["name"], width=200, color="black"),
-                ft.Text(service["status"], width=100, color="black"),
+                ft.Text(service["title"], width=200, color="black"),
+                ft.Text(service["category"], width=100, color="black"),
+                ft.Text(service["is_archived"], width=100, color="black"),
                 ft.Row(
                     controls=[
                         ft.IconButton(icon=ft.icons.VISIBILITY, icon_color="white", bgcolor="#64B5F6"),
@@ -164,32 +194,57 @@ class ServicesTablePage(PageContainer):
         )
 
     def _build_pagination(self):
+        current_page = self.state.get("current_page", 1)
+        total_pages = self.state.get("total_pages", 0)
+
+        if total_pages == 0:
+            return ft.Row(controls=[], spacing=5, alignment=ft.MainAxisAlignment.CENTER)
+
+        prev_button = ft.ElevatedButton(
+            "<", bgcolor="#2C2F48", color="white",
+            disabled=current_page == 1,
+            on_click=lambda e: self.state.set("current_page", max(1, current_page - 1))
+        )
+
+        page_buttons = [
+            ft.ElevatedButton(
+                text=str(page),
+                color="white" if page == current_page else "black",
+                bgcolor="#2C2F48" if page == current_page else "#E0E0E0",
+                on_click=lambda e, p=page: self.state.set("current_page", p)
+            )
+            for page in range(1, total_pages + 1)
+        ]
+
+        next_button = ft.ElevatedButton(
+            ">", bgcolor="#2C2F48", color="white",
+            disabled=current_page == total_pages,
+            on_click=lambda e: self.state.set("current_page", min(total_pages, current_page + 1))
+        )
+
         return ft.Row(
-            controls=[
-                ft.ElevatedButton("<", bgcolor="#2C2F48", color="white"),
-                ft.ElevatedButton(text="1", color="black", bgcolor="#E0E0E0"),
-                ft.ElevatedButton(text="2", color="black", bgcolor="#E0E0E0"),
-                ft.ElevatedButton(text="3", color="black", bgcolor="#E0E0E0"),
-                ft.ElevatedButton(text="4", color="black", bgcolor="#E0E0E0"),
-                ft.ElevatedButton(">", bgcolor="#2C2F48", color="white"),
-            ],
+            controls=[prev_button] + page_buttons + [next_button],
             spacing=5,
-            alignment=ft.MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER
         )
 
     def update_ui(self, state_key=None, value=None):
+
         if state_key == "services":
-            self.table_content.controls = [
-                self._build_table_row(service) for service in value
-            ]
+            self.logger.info(f"[update_ui] value: services -> {value}")
+
+            self.table_content = self._build_table()
             self.table_content.update()
 
     def on_new_service_click(self, e):
         print("Nuevo servicio creado")
 
     def on_search_click(self, e):
+        self._fetch_services()
+
+    def _fetch_services(self):
         self.state.set("is_processing", True)
-        asyncio.run(self.controller.fetch_services())
+        asyncio.run(self.controller.fetch_services(self.state))
         self.state.set("is_processing", False)
 
 

@@ -1,39 +1,44 @@
-import httpx
 import asyncio
-
+import logging
+from services.api_services import APIService
 
 class ServicesController:
     def __init__(self, app_manager):
-        self.app_manager = app_manager
-        self.base_url = "https://playground5.pythonanywhere.com/api/services/"
-        self.session = self.app_manager.state_handler.get("access_token")
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self._app_manager = app_manager
 
-    async def fetch_services(self, page=1, filters=None):
-        headers = {
-            "Authorization": f"Bearer {self.session.get('access_token')}"
-        }
+    async def fetch_services(self, state):
+        search_query = state.get("search_query", "").strip()
+        category_filter = state.get("category_filter", None)
+        elements_by_page = int(state.get("elements_by_page", 10))
+        current_page = int(state.get("current_page", 1))
 
-        params = {"page": page}
-        if filters:
-            params.update(filters)
+        category_id = None if category_filter == "T" else category_filter
+        token = self._app_manager.state_handler.get("access_token")
+        try:
+            response = await APIService.list_services(
+                search=search_query,
+                category_id=category_id,
+                page=current_page,
+                page_size=elements_by_page,
+                token=token,
+                only_owner=True
+            )
 
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.get(self.base_url, headers=headers, params=params)
+            if "error" in response:
+                self.logger.error(f"Error en API: {response['error']}")
+                state.set("general_error", response["error"])
+                state.set("services", [])
+            else:
+                services = response.get("results", [])
+                total_pages = max(1, (response.get("count", 0) // elements_by_page))
 
-                if response.status_code == 200:
-                    data = response.json()
-                    return {
-                        "success": True,
-                        "services": data.get("results", []),
-                        "next": data.get("next"),
-                        "previous": data.get("previous"),
-                        "count": data.get("count"),
-                    }
-                elif response.status_code == 401:
-                    return {"success": False, "error": "No autorizado. Por favor, inicie sesión."}
-                else:
-                    return {"success": False, "error": "Error al cargar los servicios."}
+                state.set("services", services)
+                state.set("total_pages", total_pages)
+                state.set("general_error", None)
 
-            except httpx.RequestError as e:
-                return {"success": False, "error": f"Error de conexión: {str(e)}"}
+        except Exception as e:
+            error_msg = f"Error en la solicitud: {str(e)}"
+            self.logger.error(error_msg)
+            state.set("general_error", error_msg)
+            state.set("services", [])

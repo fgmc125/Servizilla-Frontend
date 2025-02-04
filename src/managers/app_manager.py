@@ -65,6 +65,10 @@ class AppManager:
 
         self.page.on_resized = self.resize_handler.on_resized
 
+        self._get_token_stored()
+        self.state_handler.subscribe("access_token", self._token_store)
+        self.state_handler.subscribe("refresh_token", self._token_store)
+
         self.page.on_route_change = self.route_handler.route_change
         self.route_handler.start()
 
@@ -81,11 +85,33 @@ class AppManager:
         self.layout_handler.load_layout(route, callback)
 
     def is_authenticated(self) -> bool:
-        return self.session_handler.is_authenticated
+        self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
+        return self.state_handler.get("is_authenticated")
 
     def get_route(self, route: str) -> ft.Container:
         self.logger.debug(f"Retrieving route configuration for: {route}")
         return self.route_handler.routes.get(route, {})
 
     def authenticate(self, user: str, password: str):
+        self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
         return self.state_handler.get("is_authenticated")
+
+    # ------------------------------------------------------------------------------
+    # StateHandler Events
+    # ------------------------------------------------------------------------------
+
+    def get_state(self, key):
+        return self.state_handler.get(key)
+
+    def set_state(self, key: str, value):
+        self.state_handler.set(key, value)
+
+    def _token_store(self, key, value):
+        self.page.client_storage.set(f"servizilla.{key}", value)
+
+    def _get_token_stored(self):
+        access_token = self.page.client_storage.get("servizilla.access_token")
+        refresh_token = self.page.client_storage.get("servizilla.refresh_token")
+
+        self.state_handler.register("access_token", access_token)
+        self.state_handler.register("refresh_token", refresh_token)
