@@ -48,7 +48,7 @@ input_text_style = ft.TextStyle(
 
 button_style_submit = ft.ButtonStyle(
     bgcolor={ft.ControlState.DEFAULT: ft.Colors.PURPLE_300},
-    color={ft.ControlState.DEFAULT: ft.colors.WHITE},
+    color={ft.ControlState.DEFAULT: ft.Colors.WHITE},
     text_style=ft.TextStyle(
         size=16,
         weight=ft.FontWeight.W_500,

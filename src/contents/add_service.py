@@ -15,17 +15,76 @@ class AddServicePage(PageContainer):
         self._app_manager = app_manager
         self.controller = ServicesController(app_manager)
 
-        self.title_input = ft.TextField(label="Nombre del Servicio", expand=True)
-        self.description_input = ft.TextField(label="Descripción", multiline=True, expand=True)
-        self.duration_input = ft.TextField(label="Duración (min)", keyboard_type=ft.KeyboardType.NUMBER, expand=True)
+        self.title_input = ft.TextField(
+            label="Nombre del Servicio",
+            value="",
+            color="#57636c",
+            label_style=input_label_style,
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=2,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            expand=True,
+        )
+        self.description_input = ft.TextField(
+            label="Descripción",
+            value="",
+            color="#57636c",
+            label_style=input_label_style,
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=2,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            multiline=True,
+            expand=True
+        )
+        self.duration_input = ft.TextField(
+            label="Duración (min)",
+            keyboard_type=ft.KeyboardType.NUMBER,
+            value="",
+            color="#57636c",
+            label_style=input_label_style,
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=2,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            expand=True
+        )
 
         self.category_dropdown = ft.Dropdown(
             label="Categoría",
             options=[],
+            color="#57636c",
+            label_style=input_label_style,
+            text_style=input_text_style,
+            border_radius=12,
+            border_color="#f1f4f8",
+            border_width=2,
+            filled=True,
+            fill_color="#f1f4f8",
+            focused_border_color=ft.Colors.PURPLE_300,
+            expand=True
         )
 
         self.days_selected = {
-            day: ft.Checkbox(label=day.capitalize(), value=False) for day in
+            day: ft.Checkbox(
+                label=day.capitalize(),
+                value=False,
+                active_color=ft.Colors.PURPLE_300,
+                check_color=ft.Colors.WHITE,
+                hover_color="#d1d5db",
+                label_style=input_label_style,
+                splash_radius=8,
+            ) for day in
             ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
         }
 
@@ -39,9 +98,18 @@ class AddServicePage(PageContainer):
             error_invalid_text="Time out of range",
             help_text="Pick your time slot",
         )
-        self.all_day_switch = ft.Switch(label="Disponible 24h", value=False, on_change=self.toggle_24_hours)
+        self.all_day_switch = ft.Switch(
+            label="Disponible 24h",
+            value=False,
+            on_change=self.toggle_24_hours,
+            active_color=ft.Colors.PURPLE_300,  # Color cuando está activado
+            track_color="#f1f4f8",  # Color del fondo (igual al TextField)
+            thumb_color=ft.Colors.WHITE,  # Color del botón deslizante
+            inactive_track_color="#d1d5db",  # Color de fondo cuando está desactivado
+            inactive_thumb_color="#57636c",  # Color del botón deslizante cuando está inactivo
+            label_style=input_label_style,  # Usa el mismo estilo de fuente del TextField
+        )
 
-        # Sección de disponibilidad
         self.availability_section = ft.Column(
             controls=[
                 self.all_day_switch,
