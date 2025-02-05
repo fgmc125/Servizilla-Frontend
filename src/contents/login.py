@@ -13,6 +13,24 @@ class LoginPage(PageContainer):
         self._app_manager = app_manager
         self.controller = LoginController(app_manager)
 
+        self.text_title = ft.Text(
+            value="¡Bienvenido!👋",
+            size=32,
+            weight=ft.FontWeight.W_600,
+            color="#964BF8",
+            font_family="Urbanist",
+            selectable=True
+        )
+
+        self.text_subtitle = ft.Text(
+            value="Ingrese su Usuario y su contraseña para acceder a la plataforma.",
+            size=14,
+            weight=ft.FontWeight.W_500,
+            color="#7C89B0",
+            font_family="Plus Jakarta Sans",
+            selectable=True,
+        )
+
         self.username_input = ft.TextField(
             label="Nombre de Usuario",
             color="#57636c",
@@ -27,6 +45,7 @@ class LoginPage(PageContainer):
             fill_color="#f1f4f8",
             focused_border_color="#964BF8",
         )
+
         self.password_input = ft.TextField(
             label="Contraseña",
             password=True,
@@ -41,21 +60,24 @@ class LoginPage(PageContainer):
             focused_border_color="#964BF8",
             can_reveal_password=True,
         )
+
         self.remember_me = ft.Checkbox(
             label="Recordarme",
             label_style=ft.TextStyle(color="#7C89B0", size=15)
         )
+
         self.forgot_password_button = ft.TextButton(
             text="¿Olvidaste tu contraseña?",
             style=ft.ButtonStyle(color="#964BF8"),
         )
+
         self.login_button = ft.FilledButton(
             text="Acceder",
-            on_click=self.on_login_click,
             style=primary_button_style,
             expand=True,
             height=42,
         )
+
         self.signup_text_hint = ft.Text(
             value="¿No tienes una cuenta?",
             color="#7C89B0",
@@ -63,24 +85,43 @@ class LoginPage(PageContainer):
             weight=ft.FontWeight.W_600,
             selectable=True
         )
+
         self.signup_text_button = ft.TextButton(
             text="Regístrate aquí",
-            on_click=lambda e: app_manager.go("/auth/signup"),
             style=ft.ButtonStyle(color="#964BF8")
         )
 
+        self._register_states()
+        self._build_ui()
+        self._attach_events()
+        self._bind_states()
+
+    def _register_states(self) -> None:
         self.state.register("is_view_loading", False)
         self.state.register("is_processing", False)
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
 
-        self.state.subscribe("is_processing", self.update_ui)
-        self.state.subscribe("field_errors", self.update_ui)
-        self.state.subscribe("general_error", self.update_ui)
+    def _build_ui(self) -> None:
+        text_title = ft.Container(
+            content=self.text_title,
+            padding=ft.padding.only(top=50),
+            alignment=ft.alignment.center_left
+        )
 
-        self.build_ui()
+        text_subtitle = ft.Container(
+            content=self.text_subtitle,
+            padding=ft.padding.only(top=12, bottom=24),
+            alignment=ft.alignment.center_left
+        )
 
-    def build_ui(self):
+        header_layout = ft.Column(
+            controls=[
+                text_title,
+                text_subtitle
+            ]
+        )
+
         username_input = ft.Container(
             content=self.username_input,
             padding=ft.padding.only(bottom=10),
@@ -112,10 +153,7 @@ class LoginPage(PageContainer):
 
         column_child = ft.Column(
             controls=[
-                self._build_header(
-                    "¡Bienvenido!👋",
-                    "Ingrese su Usuario y su contraseña para acceder a la plataforma."
-                ),
+                header_layout,
                 username_input,
                 password_input,
                 remember_and_forgot_password_row,
@@ -177,7 +215,16 @@ class LoginPage(PageContainer):
 
         self.content = container
 
-    def update_ui(self, state_key=None, value=None):
+    def _bind_states(self) -> None:
+        self.state.subscribe("is_processing", self._update_ui)
+        self.state.subscribe("field_errors", self._update_ui)
+        self.state.subscribe("general_error", self._update_ui)
+
+    def _attach_events(self) -> None:
+        self.login_button.on_click = self.__on_login_click
+        self.signup_text_button.on_click = lambda e: self._app_manager.go("/auth/signup")
+
+    def _update_ui(self, state_key=None, value=None) -> None:
         if state_key is None or state_key not in ["is_processing", "field_errors"]:
             self.login_button.disabled = self.state.get("is_processing")
             self.login_button.text = "Verificando..." if self.state.get("is_processing") else "Acceder"
@@ -198,7 +245,7 @@ class LoginPage(PageContainer):
         self.password_input.update()
         self.login_button.update()
 
-    def on_login_click(self, e):
+    def __on_login_click(self, event: ft.ControlEvent):
         self.state.set("is_processing", True)
 
         async def process_login():
@@ -220,46 +267,7 @@ class LoginPage(PageContainer):
 
         asyncio.run(process_login())
 
-    def _build_header(self, title, subtitle):
-        text_title = ft.Text(
-            value=title,
-            size=32,
-            weight=ft.FontWeight.W_600,
-            color="#964BF8",
-            font_family="Urbanist",
-            selectable=True
-        )
-
-        text_subtitle = ft.Text(
-            value=subtitle,
-            size=14,
-            weight=ft.FontWeight.W_500,
-            color="#7C89B0",
-            font_family="Plus Jakarta Sans",
-            selectable=True,
-        )
-
-        text_title_container = ft.Container(
-            content=text_title,
-            padding=ft.padding.only(top=50),
-            alignment=ft.alignment.center_left
-        )
-
-        text_subtitle_cotainer = ft.Container(
-            content=text_subtitle,
-            padding=ft.padding.only(top=12, bottom=24),
-            alignment=ft.alignment.center_left
-        )
-
-        layout = ft.Column(
-            controls=[
-                text_title_container,
-                text_subtitle_cotainer
-            ]
-        )
-        return layout
-
 
 def login_page(app_manager):
-    app_manager.page.title = "Login Page"
+    app_manager.page.title_text = "Login Page"
     return LoginPage(app_manager)

@@ -45,7 +45,7 @@ class AppManager:
 
     def initialize_app(self):
         self.logger.info("Initializing the application")
-        self.page.title = "Mi App Prototipo"
+        self.page.title_text = "Mi App Prototipo"
         self.page.spacing = 0
         self.page.padding = ft.padding.all(0)
         self.page.bgcolor = '#F4F5F6'

@@ -57,3 +57,47 @@ button_style_submit = ft.ButtonStyle(
     side=ft.BorderSide(color=ft.Colors.TRANSPARENT, width=1),
     shape=ft.RoundedRectangleBorder(radius=8),
 )
+
+text_button_style = ft.ButtonStyle(
+    bgcolor={ft.ControlState.DEFAULT: ft.Colors.TRANSPARENT},
+    color={
+        ft.ControlState.DEFAULT: "#7C89B0",
+        ft.ControlState.HOVERED: "#964BF8",
+        ft.ControlState.PRESSED: "#7C89B0",
+    },
+    text_style=ft.TextStyle(
+        size=16,
+        weight=ft.FontWeight.W_500,
+        font_family="Plus Jakarta Sans",
+    ),
+    side=ft.BorderSide(
+        color=ft.Colors.TRANSPARENT,
+        width=0
+    ),
+    shape=ft.RoundedRectangleBorder(radius=0),
+)
+
+outlined_button_style = ft.ButtonStyle(
+    bgcolor={
+        ft.ControlState.DEFAULT: ft.Colors.TRANSPARENT,
+        ft.ControlState.HOVERED: "#964BF8",
+        ft.ControlState.PRESSED: "#964BF8",
+        ft.ControlState.DISABLED: ft.Colors.TRANSPARENT
+    },
+    color={
+        ft.ControlState.DEFAULT: "#964BF8",
+        ft.ControlState.HOVERED: "#FFFFFF",
+        ft.ControlState.PRESSED: "#964BF8",
+        ft.ControlState.DISABLED: ft.Colors.GREY_400
+    },
+    text_style=ft.TextStyle(
+        size=16,
+        weight=ft.FontWeight.W_500,
+        font_family="Plus Jakarta Sans",
+    ),
+    side=ft.BorderSide(
+        color="#964BF8",
+        width=1,
+    ),
+    shape=ft.RoundedRectangleBorder(radius=8),
+)

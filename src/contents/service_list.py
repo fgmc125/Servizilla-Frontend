@@ -95,10 +95,9 @@ class ProductCatalogPage(PageContainer):
         )
 
         # Layout assembly
-        layout = ft.Row(
+        container_wrapper = ft.Row(
             controls=[
-                ft.Container(content=categories, width=200, padding=10),
-                ft.VerticalDivider(width=1),
+                categories,
                 ft.Column(
                     controls=[
                         ft.Row(
@@ -121,16 +120,47 @@ class ProductCatalogPage(PageContainer):
                         products_grid,
                         pagination
                     ],
+                    tight=True,
+                    alignment=ft.MainAxisAlignment.START,
                     expand=True,
                     spacing=10
                 )
             ],
+            expand=True,
+            tight=True,
+            alignment=ft.MainAxisAlignment.START
+        )
+
+        def unfocused(event: ft.ControlEvent):
+            for control in self._app_manager.page.controls:
+                if isinstance(control, ft.TextField):
+                    control.blur()
+            self._app_manager.page.update()
+
+        gesture_detector = ft.GestureDetector(
+            mouse_cursor=ft.MouseCursor.BASIC,
+            on_tap=unfocused,
+            content=container_wrapper,
+        )
+
+        layout = ft.Row(
+            controls=[gesture_detector],
+            spacing=20,
+            alignment=ft.MainAxisAlignment.CENTER,
             expand=True
         )
 
-        self.content = ft.Container(content=layout, expand=True)
+        container = ft.Container(
+            content=layout,
+            margin=ft.margin.all(20),
+            padding=ft.padding.all(30),
+            bgcolor="white",
+            border_radius=10
+        )
+
+        self.content = container
 
 
 def product_catalog_page(app_manager):
-    app_manager.page.title = "Product Catalog"
+    app_manager.page.title_text = "Product Catalog"
     return ProductCatalogPage(app_manager)

@@ -17,8 +17,6 @@ class ServicesTablePage(PageContainer):
         self._app_manager = app_manager
         self.controller = ServicesController(app_manager)
 
-        self.content = None
-
         self.elements_by_page = ft.Dropdown(
             label="Cantidad de Elementos",
             hint_text="SELECCIONE CANTIDAD",
@@ -76,6 +74,8 @@ class ServicesTablePage(PageContainer):
             on_click=lambda e: self._app_manager.page.go("/services/new")
         )
 
+        self.table_content = self._build_table()
+
         self.state.register("is_processing", False)
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
@@ -84,28 +84,27 @@ class ServicesTablePage(PageContainer):
         self.state.register("elements_by_page", self.elements_by_page.value or "5")
         self.state.register("category_filter", self.category_filter.value or "T")
         self.state.register("search_query", self.search.value or None)
+
         self.state.register("current_page", 1)
         self.state.register("total_pages", 0)
 
-        self.state.subscribe("is_processing", self.update_ui)
-        self.state.subscribe("field_errors", self.update_ui)
-        self.state.subscribe("general_error", self.update_ui)
+        self.state.subscribe("is_processing", self._update_ui)
+        self.state.subscribe("field_errors", self._update_ui)
+        self.state.subscribe("general_error", self._update_ui)
 
-        self.state.subscribe("services", self.update_ui)
-        self.state.subscribe("elements_by_page", self.update_ui)
-        self.state.subscribe("category_filter", self.update_ui)
-        self.state.subscribe("search_query", self.update_ui)
-        self.state.subscribe("current_page", self.update_ui)
-        self.state.subscribe("total_pages", self.update_ui)
+        self.state.subscribe("services", self._update_ui)
+        self.state.subscribe("elements_by_page", self._update_ui)
+        self.state.subscribe("category_filter", self._update_ui)
+        self.state.subscribe("search_query", self._update_ui)
+
+        self.state.subscribe("total_pages", self._update_ui)
 
         self.state.subscribe("current_page", self._fetch_services)
 
-        self.table_content = self._build_table()
-
         self._fetch_services()
-        self.build_ui()
+        self._build_ui()
 
-    def build_ui(self):
+    def _build_ui(self):
         filter_row = ft.Row(
             controls=[
                 self.elements_by_page,
@@ -137,8 +136,11 @@ class ServicesTablePage(PageContainer):
                 pagination,
             ],
             spacing=20,
+            tight=False,
             expand=True,
+            alignment=ft.MainAxisAlignment.START
         )
+
         container = ft.Container(
             content=layout,
             margin=ft.margin.all(20),
@@ -227,7 +229,7 @@ class ServicesTablePage(PageContainer):
             alignment=ft.MainAxisAlignment.CENTER
         )
 
-    def update_ui(self, state_key=None, value=None):
+    def _update_ui(self, state_key=None, value=None):
 
         if state_key == "services":
             self.logger.info(f"[update_ui] value: services -> {value}")
@@ -248,5 +250,5 @@ class ServicesTablePage(PageContainer):
 
 
 def seller_dashboard_page(app_manager):
-    app_manager.page.title = "Gestión de Servicios"
+    app_manager.page.title_text = "Gestión de Servicios"
     return ServicesTablePage(app_manager)

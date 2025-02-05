@@ -5,12 +5,17 @@ BASE_URL = "https://playground5.pythonanywhere.com/api"
 
 class APIService:
     @staticmethod
-    async def get_categories() -> dict:
-        """Obtiene la lista de categorías."""
+    async def get_categories(token: str) -> list:
         url = f"{BASE_URL}/categories/"
+        headers = {"Authorization": f"Bearer {token}"}
+
         async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            return APIService._handle_response(response)
+            response = await client.get(url, headers=headers)
+
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise Exception(f"Error en la respuesta de la API: {response.status_code}, {response.text}")
 
     @staticmethod
     async def get_request_status_list() -> dict:
@@ -25,8 +30,8 @@ class APIService:
             token: str, search: str = "", category_id: int = None,
             created_at_min: str = None, created_at_max: str = None,
             updated_at_min: str = None, updated_at_max: str = None,
-            page: int = 1, page_size: int = 10, only_owner:bool =False,
-            oferente_id:int=None
+            page: int = 1, page_size: int = 10, only_owner: bool = False,
+            oferente_id: int = None
     ) -> dict:
         headers = {"Authorization": f"Bearer {token}"}
         url = f"{BASE_URL}/services/"
@@ -66,13 +71,33 @@ class APIService:
 
     @staticmethod
     async def create_service(data: dict, token: str) -> dict:
-        """Crea un nuevo servicio."""
         url = f"{BASE_URL}/services/create/"
         headers = {"Authorization": f"Bearer {token}"}
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=data, headers=headers)
-            return APIService._handle_response(response)
+        service_data = {
+            "title": data.get("title"),
+            "description": data.get("description"),
+            "duration": data.get("duration"),
+            "availability": {
+                "days": data.get("availability", {}).get("days", {}),
+                "hours": data.get("availability", {}).get("hours", {}),
+            },
+            "category": data.get("category")
+        }
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, json=service_data, headers=headers)
+
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    error_msg = f"Error al crear el servicio: {response.status_code} - {response.text}"
+                    raise Exception(error_msg)
+
+        except Exception as e:
+            error_msg = f"Error en la creación del servicio: {str(e)}"
+            raise Exception(error_msg)
 
     @staticmethod
     async def update_service(service_id: int, data: dict, token: str) -> dict:

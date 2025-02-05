@@ -284,5 +284,5 @@ class SignupPage(PageContainer):
 
 
 def signup_page(app_manager):
-    app_manager.page.title = "Signup Page"
+    app_manager.page.title_text = "Signup Page"
     return SignupPage(app_manager)

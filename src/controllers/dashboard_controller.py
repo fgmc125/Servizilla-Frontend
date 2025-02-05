@@ -2,6 +2,7 @@ import asyncio
 import logging
 from services.api_services import APIService
 
+
 class ServicesController:
     def __init__(self, app_manager):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -28,7 +29,6 @@ class ServicesController:
             if "error" in response:
                 self.logger.error(f"Error en API: {response['error']}")
                 state.set("general_error", response["error"])
-                state.set("services", [])
             else:
                 services = response.get("results", [])
                 total_pages = max(1, (response.get("count", 0) // elements_by_page))
