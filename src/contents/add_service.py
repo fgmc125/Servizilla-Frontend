@@ -35,6 +35,7 @@ class AddServicePage(PageContainer):
             fill_color="#f1f4f8",
             focused_border_color=ft.Colors.PURPLE_300,
             expand=True,
+            data={"state": "service_name"}
         )
         self.description_input = ft.TextField(
             label="Descripción",
@@ -49,7 +50,8 @@ class AddServicePage(PageContainer):
             fill_color="#f1f4f8",
             focused_border_color=ft.Colors.PURPLE_300,
             multiline=True,
-            expand=True
+            expand=True,
+            data={"state": "service_description"}
         )
         self.duration_input = ft.TextField(
             label="Duración (min)",
@@ -64,7 +66,8 @@ class AddServicePage(PageContainer):
             filled=True,
             fill_color="#f1f4f8",
             focused_border_color=ft.Colors.PURPLE_300,
-            expand=True
+            expand=True,
+            data={"state": "duration"}
         )
 
         self.category_dropdown = ft.Dropdown(
@@ -80,7 +83,8 @@ class AddServicePage(PageContainer):
             filled=True,
             fill_color="#f1f4f8",
             focused_border_color=ft.Colors.PURPLE_300,
-            expand=True
+            expand=True,
+            data={"state": "service_category_id"}
         )
 
         self.days_selected = {
@@ -99,12 +103,14 @@ class AddServicePage(PageContainer):
             confirm_text="Confirm",
             error_invalid_text="Time out of range",
             help_text="Pick your time slot",
+            data={"state": "start_time_picker"}
         )
 
         self.end_time_picker = ft.TimePicker(
             confirm_text="Confirm",
             error_invalid_text="Time out of range",
             help_text="Pick your time slot",
+            data={"state": "end_time_picker"}
         )
 
         self.start_time_picker_button = ft.OutlinedButton(
@@ -125,6 +131,7 @@ class AddServicePage(PageContainer):
             inactive_track_color="#d1d5db",
             inactive_thumb_color="green",
             label_style=input_label_style,
+            data={"state": "available_all_day"}
         )
 
         self.save_button = ft.FilledButton(
@@ -220,6 +227,13 @@ class AddServicePage(PageContainer):
             self.category_dropdown.options = options
 
     def _attach_events(self) -> None:
+        self.title_input.on_change = self.handle_input_change
+        self.description_input.on_change = self.handle_input_change
+        self.duration_input.on_change = self.handle_input_change
+        self.category_dropdown.on_change = self.handle_category_change
+        self.start_time_picker.on_change = self.handle_input_change
+        self.end_time_picker.on_change = self.handle_input_change
+
         self.start_time_picker_button.on_click = lambda _: self._app_manager.page.open(self.start_time_picker)
         self.end_time_picker_button.on_click = lambda _: self._app_manager.page.open(self.end_time_picker)
         self.all_day_switch.on_change = self.toggle_24_hours
@@ -278,6 +292,13 @@ class AddServicePage(PageContainer):
 
     async def handle_click(self, event: ft.ControlEvent):
         await self.controller.add_service(self.state)
+
+    def handle_input_change(self, event: ft.ControlEvent):
+        self.state.set(event.control.data["state"], event.control.value)
+
+    def handle_category_change(self, event: ft.ControlEvent):
+        self.state.set(event.control.data["state"], event.control.value)
+
 
 def add_service_page(app_manager):
     app_manager.page.title_text = "Agregar Servicio"

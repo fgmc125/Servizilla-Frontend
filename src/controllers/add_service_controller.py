@@ -27,8 +27,8 @@ class AddServiceController:
             if is_selected:
                 availability["days"][self.__get_day_in_english(day)] = [
                     {
-                        "start": "00:00" if service_available_all_day else start_time_picker,
-                        "end": "24:00" if service_available_all_day else end_time_picker
+                        "start": "00:00" if service_available_all_day else start_time_picker.strftime("%H:%M"),
+                        "end": "24:00" if service_available_all_day else end_time_picker.strftime("%H:%M")
                     }
                 ]
 
@@ -41,6 +41,8 @@ class AddServiceController:
             "availability": availability,
             "category": service_category
         }
+
+        self.logger.warning(f"data_form: {service_data}")
 
         state.set("is_processing", True)
 
