@@ -31,7 +31,7 @@ routes = {
     "/dashboard": {"page": seller_dashboard_page, "protected": True, "layout": CommonLayout},
     "/services/new": {"page": add_service_page, "protected": True, "layout": CommonLayout},
     
-    "/services/<int:id>": {"page": service_detail_page, "protected": False, "layout": CommonLayout},
+    "/services/<int:service_id>": {"page": service_detail_page, "protected": False, "layout": CommonLayout},
 
     # Protected - Webapp
     

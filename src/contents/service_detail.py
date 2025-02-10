@@ -5,6 +5,7 @@ import flet as ft
 from contents.content import PageContainer
 from utils.style_helper import label_style, text_style
 
+
 class ServiceDetailPage(PageContainer):
     def __init__(self, app_manager, service_id):
         super().__init__()
@@ -20,17 +21,17 @@ class ServiceDetailPage(PageContainer):
         self.load_service_data()
 
     def build_ui(self):
-        self.service_image = ft.Image(src="", height=200, fit=ft.ImageFit.CONTAIN)
-        self.service_name = ft.Text(value="Cargando...", size=20, weight=ft.FontWeight.BOLD, text_style=text_style)
-        self.service_description = ft.Text(value="", size=14, text_style=text_style)
-        self.service_price = ft.Text(value="", size=14, text_style=text_style)
+        # self.service_image = ft.Image(src="", height=200, fit=ft.ImageFit.CONTAIN)
+        self.service_name = ft.Text(value="Cargando...", size=20, weight=ft.FontWeight.BOLD, style=text_style)
+        self.service_description = ft.Text(value="", size=14, style=text_style)
+        self.service_price = ft.Text(value="", size=14, style=text_style)
         self.service_category = ft.Text(value="", size=12, color="#7C89B0")
         self.service_oferente = ft.Text(value="", size=12, color="#7C89B0")
         self.loading_indicator = ft.ProgressRing(visible=True)
 
         column_child = ft.Column(
             controls=[
-                self.service_image,
+                # self.service_image,
                 self.service_name,
                 self.service_description,
                 self.service_price,
@@ -57,7 +58,9 @@ class ServiceDetailPage(PageContainer):
         base_url = "https://playground5.pythonanywhere.com/"
         url = f"{base_url}{self.service_id}/"
 
-        headers = {"Authorization": f"Bearer {self._app_manager.token}"}
+        token = self._app_manager.state_handler.get("access_token")
+
+        headers = {"Authorization": f"Bearer {token}"}
 
         async def fetch_service():
             response = requests.get(url, headers=headers)
@@ -87,12 +90,13 @@ class ServiceDetailPage(PageContainer):
             self.service_category.value = f"Categoría: {service['category']['name']}"
             self.service_oferente.value = f"Oferente: {service['oferente']['username']}"
 
-        self.service_image.update()
+        # self.service_image.update()
         self.service_name.update()
         self.service_description.update()
         self.service_price.update()
         self.service_category.update()
         self.service_oferente.update()
+
 
 def service_detail_page(app_manager, service_id):
     return ServiceDetailPage(app_manager, service_id)

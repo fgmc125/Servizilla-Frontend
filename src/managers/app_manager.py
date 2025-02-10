@@ -80,9 +80,13 @@ class AppManager:
         self.logger.info(f"Navigating to route: {route}")
         self.page.go(route)
 
-    def load_layout(self, route: str, callback):
-        self.logger.debug(f"Loading layout for route: {route}")
-        self.layout_handler.load_layout(route, callback)
+    def load_layout(self, route: str, callback, params=None):
+        self.logger.debug(f"Loading layout for route: {route} with params: {params}")
+
+        if params:
+            self.layout_handler.load_layout(route, callback, params=params)
+        else:
+            self.layout_handler.load_layout(route, callback)
 
     def is_authenticated(self) -> bool:
         self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")

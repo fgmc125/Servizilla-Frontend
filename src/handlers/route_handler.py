@@ -1,5 +1,6 @@
+import re
 import logging
-
+from urllib.parse import urlparse, parse_qs
 from routes.urls import routes
 
 
@@ -22,36 +23,84 @@ class RouteHandler:
         self.app_manager.go(self.app_manager.page.route or "/dashboard")
 
     def route_change(self, e):
-        route = e.route
-        self.logger.info(f"Route change detected: {route}")
+        full_route = e.route
+        self.logger.info(f"Route change detected: {full_route}")
         is_authenticated = self.app_manager.is_authenticated()
 
-        if route not in self.routes:
-            self.logger.warning(f"Route '{route}' not found, redirecting to 404")
-            self.app_manager.page.go("/404")
+        parsed_url = urlparse(full_route)
+        route_path = parsed_url.path
+        query_params = parse_qs(parsed_url.query)
+
+        if route_path in self.routes:
+            route_info = self.routes[route_path]
+            if route_info["protected"] and not is_authenticated:
+                self.logger.info(f"Access denied for protected route '{route_path}', redirecting to login")
+                self.app_manager.page.go("/auth/login")
+                return
+
+            self.logger.debug(f"Loading exact route: {route_path}")
+            self._load_route(route_path, route_info["page"], query_params)
             return
 
-        if route == '/auth/logout':
-            log = self.app_manager.session_handler.logout()
-            print(log)
-            self.app_manager.page.go("/auth/login")
-            return
+        for route_pattern, route_info in self.routes.items():
+            dynamic_regex = self._convert_route_to_regex(route_pattern)
+            match = re.match(f"^{dynamic_regex}$", route_path)
 
-        if self.routes[route]["protected"] and not is_authenticated:
-            self.logger.info(f"Access denied for protected route '{route}', redirecting to login")
-            self.app_manager.page.go("/auth/login")
-            return
+            if match:
+                extracted_params = self._extract_params_from_route(route_pattern, match)
+                self.logger.info(f"Detected dynamic route '{route_pattern}' with params: {extracted_params}")
 
-        self.logger.debug(f"Loading route: {route}")
-        self._load_route(route)
+                if route_info["protected"] and not is_authenticated:
+                    self.logger.info(f"Access denied for protected route '{route_path}', redirecting to login")
+                    self.app_manager.page.go("/auth/login")
+                    return
 
-    def _load_route(self, route):
-        page_func = self.routes[route]["page"]
-        self.logger.debug(f"Loading page function for route: {route} of type {type(page_func)}")
+                self._load_route(route_path, route_info["page"], {**extracted_params, **query_params})
+                return
 
-        if hasattr(self.view_container, 'content'):
-            self.logger.debug(
-                f"Current view_container content before loading route: {self.view_container.content}")
+        self.logger.warning(f"Route '{route_path}' not found, redirecting to 404")
+        self.app_manager.page.go("/404")
+
+    def _convert_route_to_regex(self, route_pattern):
+        type_map = {
+            "int": r"\d+",
+            "str": r"\w+",
+            "slug": r"[-\w]+",
+            "uuid": r"[0-9a-fA-F\-]+",
+            "path": r".+",
+        }
+
+        # Expresión regular para detectar "<tipo:nombre>"
+        param_pattern = re.compile(r"<(int|str|slug|uuid|path):(\w+)>")
+
+        # Función de reemplazo que transforma los parámetros en regex
+        def replace_param(match):
+            param_type, param_name = match.groups()
+            return rf"(?P<{param_name}>{type_map[param_type]})"
+
+        # Reemplaza todos los parámetros encontrados en la ruta
+        regex_pattern = param_pattern.sub(replace_param, route_pattern)
+
+        # Agrega los delimitadores de inicio y fin para evitar coincidencias parciales
+        regex_pattern = f"^{regex_pattern}$"
+
+        return regex_pattern
+
+    def _extract_params_from_route(self, route_pattern, match):
+        param_names = re.findall(r"<(\w+:\w+)>", route_pattern)
+        extracted_params = match.groupdict()
+
+        for param in param_names:
+            param_type, param_name = param.split(":")
+            if param_type == "int":
+                extracted_params[param_name] = int(extracted_params[param_name])
+            elif param_type == "str":
+                extracted_params[param_name] = str(extracted_params[param_name])
+
+        return extracted_params
+
+    def _load_route(self, route, page_func, params=None):
+        self.logger.debug(f"Loading page function for route: {route} with params: {params}")
 
         if self.view_container is not None:
             self.history.append(route)
