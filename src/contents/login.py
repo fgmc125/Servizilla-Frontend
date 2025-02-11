@@ -267,6 +267,12 @@ class LoginPage(PageContainer):
 
         asyncio.run(process_login())
 
+    def on_resized(self, event: ft.ControlEvent):
+        if self.app_manager.page.width < 1200:
+            pass
+        else:
+            pass
+
 
 def login_page(app_manager):
     app_manager.page.title_text = "Login Page"

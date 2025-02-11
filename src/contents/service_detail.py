@@ -1,5 +1,7 @@
 import asyncio
 import requests
+import logging
+
 import flet as ft
 
 from contents.content import PageContainer
@@ -9,18 +11,19 @@ from utils.style_helper import label_style, text_style
 class ServiceDetailPage(PageContainer):
     def __init__(self, app_manager, service_id):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._app_manager = app_manager
         self.service_id = service_id
 
         self.state.register("is_loading", True)
         self.state.register("service", None)
-        self.state.subscribe("is_loading", self.update_ui)
-        self.state.subscribe("service", self.update_ui)
+        self.state.subscribe("is_loading", self._update_ui)
+        self.state.subscribe("service", self._update_ui)
 
-        self.build_ui()
+        self._build_ui()
         self.load_service_data()
 
-    def build_ui(self):
+    def _build_ui(self):
         # self.service_image = ft.Image(src="", height=200, fit=ft.ImageFit.CONTAIN)
         self.service_name = ft.Text(value="Cargando...", size=20, weight=ft.FontWeight.BOLD, style=text_style)
         self.service_description = ft.Text(value="", size=14, style=text_style)
@@ -72,7 +75,7 @@ class ServiceDetailPage(PageContainer):
 
         asyncio.run(fetch_service())
 
-    def update_ui(self, state_key=None, value=None):
+    def _update_ui(self, state_key=None, value=None):
         service = self.state.get("service")
         is_loading = self.state.get("is_loading")
 
@@ -97,6 +100,15 @@ class ServiceDetailPage(PageContainer):
         self.service_category.update()
         self.service_oferente.update()
 
+    def _bind_states(self) -> None:
+        pass
+
+    def _attach_events(self) -> None:
+        pass
+
+    def _register_states(self) -> None:
+        pass
 
 def service_detail_page(app_manager, service_id):
+    print(f"service_detail_page: {type(service_id)}/service_id")
     return ServiceDetailPage(app_manager, service_id)

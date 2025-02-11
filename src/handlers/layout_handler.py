@@ -14,7 +14,6 @@ class LayoutHandler:
             self.logger.debug("LayoutManager initialized")
 
     def _clear_current_content(self):
-        """Method to handle clearing the current view container content."""
         if self.view_container is not None and hasattr(self.view_container, 'content'):
             try:
                 if self.view_container.content:
@@ -22,7 +21,7 @@ class LayoutHandler:
                     self.logger.info(f"-----> self.view_container.content: {self.view_container.content}")
                     self.logger.info(f"-----> type self.view_container: {type(self.view_container)}")
                     self.logger.info(f"-----> type content: {type(self.view_container.content)}")
-                    # Verifica si content tiene clean() antes de llamar
+
                     if hasattr(self.view_container.content, 'clean') and callable(self.view_container.content.clean):
                         self.view_container.content.clean()
                     else:
@@ -34,6 +33,9 @@ class LayoutHandler:
                 self.logger.error(f"Unexpected error while clearing content: {e}")
 
     def load_layout(self, route, page_func, params=None):
+        self.logger.info(f"Inside LayoutHandler.load_layout() - Received params: {params} (type: {type(params)})")
+        self.logger.info(f"Ejecutando LayoutHandler.load_layout() para {route} con params {params}")
+
         if self.view_container and hasattr(self.view_container, 'content'):
             self.logger.debug(f"view_container controls before update: {self.view_container.content}")
 

@@ -22,4 +22,5 @@ class CommonLayout(Layout):
         pass
 
     def render_content(self, content):
+        self.logger.debug(f"render_content: {content}")
         self.content = content

@@ -248,6 +248,15 @@ class ServicesTablePage(PageContainer):
         asyncio.run(self.controller.fetch_services(self.state))
         self.state.set("is_processing", False)
 
+    def _register_states(self) -> None:
+        pass
+
+    def _bind_states(self) -> None:
+        pass
+
+    def _attach_events(self) -> None:
+        pass
+
 
 def seller_dashboard_page(app_manager):
     app_manager.page.title_text = "Gestión de Servicios"

@@ -36,5 +36,4 @@ routes = {
     "/services/<int:service_id>": {"page": service_detail_page, "protected": False, "layout": CommonLayout},
 
     # Protected - Webapp
-    
 }

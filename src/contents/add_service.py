@@ -1,6 +1,7 @@
 import asyncio
-import flet as ft
 import logging
+
+import flet as ft
 
 from contents.content import PageContainer
 from controllers.add_service_controller import AddServiceController

@@ -70,18 +70,14 @@ class RouteHandler:
             "path": r".+",
         }
 
-        # Expresión regular para detectar "<tipo:nombre>"
         param_pattern = re.compile(r"<(int|str|slug|uuid|path):(\w+)>")
 
-        # Función de reemplazo que transforma los parámetros en regex
         def replace_param(match):
             param_type, param_name = match.groups()
             return rf"(?P<{param_name}>{type_map[param_type]})"
 
-        # Reemplaza todos los parámetros encontrados en la ruta
         regex_pattern = param_pattern.sub(replace_param, route_pattern)
 
-        # Agrega los delimitadores de inicio y fin para evitar coincidencias parciales
         regex_pattern = f"^{regex_pattern}$"
 
         return regex_pattern
@@ -107,7 +103,9 @@ class RouteHandler:
             self.current_route = route
             self.logger.info(f"[RouteManager] Route '{route}' loaded, updating layout")
             try:
-                self.app_manager.load_layout(route, page_func)
+                self.logger.debug(f"Calling load_layout with params: {params}")
+                self.logger.info(f"Llamando a {page_func} con params: {params}")
+                self.app_manager.load_layout(route, page_func, params=params)
             except Exception as e:
                 self.logger.error(f"Error loading layout for route {route}: {e}")
         else:

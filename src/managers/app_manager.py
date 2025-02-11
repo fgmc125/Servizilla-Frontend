@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 import flet as ft
 
@@ -7,7 +8,7 @@ from handlers.layout_handler import LayoutHandler
 from handlers.session_handler import SessionHandler
 from handlers.resize_handler import ResizeHandler
 from handlers.state_handler import StateHandler
-
+from services.auth_service import AuthService
 
 class AppManager:
     def __init__(self):
@@ -65,7 +66,7 @@ class AppManager:
 
         self.page.on_resized = self.resize_handler.on_resized
 
-        self._get_token_stored()
+        asyncio.run(self._get_token_stored())
         self.state_handler.subscribe("access_token", self._token_store)
         self.state_handler.subscribe("refresh_token", self._token_store)
 
@@ -81,12 +82,11 @@ class AppManager:
         self.page.go(route)
 
     def load_layout(self, route: str, callback, params=None):
+        self.logger.info(f"Received params in LayoutHandler: {params} (type: {type(params)})")
         self.logger.debug(f"Loading layout for route: {route} with params: {params}")
 
-        if params:
-            self.layout_handler.load_layout(route, callback, params=params)
-        else:
-            self.layout_handler.load_layout(route, callback)
+        self.logger.info(f"Passing params to LayoutHandler.load_layout(): {params} (type: {type(params)})")
+        self.layout_handler.load_layout(route, callback, params=params)
 
     def is_authenticated(self) -> bool:
         self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
@@ -116,10 +116,12 @@ class AppManager:
     def _token_store(self, key, value):
         self.page.client_storage.set(f"servizilla.{key}", value)
 
-    def _get_token_stored(self):
+    async def _get_token_stored(self):
         self.logger.info(f"access_token 2: {
-            self.page.client_storage.contains_key("servizilla.access_token")
+        self.page.client_storage.contains_key('servizilla.access_token')
         }")
+
+        success = False
 
         access_token = None
         refresh_token = None
@@ -130,10 +132,18 @@ class AppManager:
         if self.page.client_storage.contains_key("servizilla.refresh_token"):
             refresh_token = self.page.client_storage.get("servizilla.refresh_token")
 
+        if access_token and refresh_token:
+            user_info = await AuthService.get_user_info(access_token)
 
-        self.state_handler.register("is_authenticated", access_token and refresh_token)
+            if user_info.get("success"):
+                success = True
+                self.state_handler.register("user_info", user_info["user"])
+            else:
+                self.logger.warning("Token inválido o expirado, el usuario no está autenticado")
 
-        self.logger.info(f"access_token: {access_token}, refresh_token: {access_token}")
+        self.state_handler.register("is_authenticated", success)
+
+        self.logger.info(f"access_token: {access_token}, refresh_token: {refresh_token}")
         self.logger.info(f"KEYS: {self.page.client_storage.get_keys('servizilla.')}")
 
         self.state_handler.register("access_token", access_token)
