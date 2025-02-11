@@ -110,11 +110,16 @@ class AppManager:
     def set_state(self, key: str, value):
         self.state_handler.set(key, value)
 
+    def subscribe_state(self, key: str, callback):
+        self.state_handler.subscribe(key, callback)
+
     def _token_store(self, key, value):
         self.page.client_storage.set(f"servizilla.{key}", value)
 
     def _get_token_stored(self):
-        self.logger.info(f"access_token 2: {self.page.client_storage.contains_key("servizilla.access_token")}")
+        self.logger.info(f"access_token 2: {
+            self.page.client_storage.contains_key("servizilla.access_token")
+        }")
 
         access_token = None
         refresh_token = None

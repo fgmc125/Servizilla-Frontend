@@ -10,16 +10,18 @@ from contents.service_detail import service_detail_page
 
 # Layouts
 from layouts.common_layout import CommonLayout
+from layouts.basic_layout import BasicLayout
+from layouts.dashboard_layout import DashboardLayout
 
 
 routes = {
     # Common
-    "/": {"page": product_catalog_page, "protected": False, "layout": CommonLayout},
-    "/home": {"page": product_catalog_page, "protected": False, "layout": CommonLayout},
+    "/": {"page": product_catalog_page, "protected": False, "layout": BasicLayout},
+    "/home": {"page": product_catalog_page, "protected": False, "layout": BasicLayout},
 
     # Auth contents
-    "/auth/login": {"page": login_page, "protected": False, "layout": CommonLayout},
-    "/auth/signup": {"page": signup_page, "protected": False, "layout": CommonLayout},
+    "/auth/login": {"page": login_page, "protected": False, "layout": BasicLayout},
+    "/auth/signup": {"page": signup_page, "protected": False, "layout": BasicLayout},
 
     # Miscellaneous
     "/401": {"page": code_401, "protected": False, "layout": CommonLayout},
@@ -28,8 +30,8 @@ routes = {
     "/503": {"page": code_503, "protected": False, "layout": CommonLayout},
 
     # Protected - Dashboard profile_page
-    "/dashboard": {"page": seller_dashboard_page, "protected": True, "layout": CommonLayout},
-    "/services/new": {"page": add_service_page, "protected": True, "layout": CommonLayout},
+    "/dashboard": {"page": seller_dashboard_page, "protected": True, "layout": DashboardLayout},
+    "/services/new": {"page": add_service_page, "protected": True, "layout": DashboardLayout},
     
     "/services/<int:service_id>": {"page": service_detail_page, "protected": False, "layout": CommonLayout},
 

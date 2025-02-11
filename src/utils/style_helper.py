@@ -32,6 +32,7 @@ primary_button_style = ft.ButtonStyle(
     ),
     elevation=1,
     shape=ft.RoundedRectangleBorder(radius=12),
+    padding=ft.padding.symmetric(horizontal=20)
 )
 
 input_label_style = ft.TextStyle(
@@ -100,4 +101,5 @@ outlined_button_style = ft.ButtonStyle(
         width=1,
     ),
     shape=ft.RoundedRectangleBorder(radius=8),
+    padding=ft.padding.symmetric(horizontal=20)
 )

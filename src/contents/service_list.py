@@ -39,9 +39,9 @@ class ProductCatalogPage(PageContainer):
         self.state.register("products", [])
         self.state.register("current_page", 1)
 
-        self.build_ui()
+        self._build_ui()
 
-    def build_ui(self):
+    def _build_ui(self):
         search_bar = ft.TextField(
             label="Search here...",
             prefix_icon=ft.icons.SEARCH,
@@ -160,6 +160,17 @@ class ProductCatalogPage(PageContainer):
 
         self.content = container
 
+    def _register_states(self) -> None:
+        pass
+
+    def _bind_states(self) -> None:
+        pass
+
+    def _attach_events(self) -> None:
+        pass
+
+    def _update_ui(self, state_key=None, value=None) -> None:
+        pass
 
 def product_catalog_page(app_manager):
     app_manager.page.title_text = "Product Catalog"
