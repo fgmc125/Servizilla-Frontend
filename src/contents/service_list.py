@@ -92,7 +92,7 @@ class ServicesCatalogPage(PageContainer):
         )
 
         self.search_bar = ft.TextField(
-            label="Search here...",
+            label="Buscar...",
             prefix_icon=ft.Icons.SEARCH,
             value="",
             color="#57636c",
@@ -123,6 +123,7 @@ class ServicesCatalogPage(PageContainer):
         self.state.register("general_error", None)
 
         self.state.register("categories", [])
+        self.state.register("active_category", 0)
 
     def _build_ui(self):
         wrapper_layout = ft.Column(
@@ -148,13 +149,14 @@ class ServicesCatalogPage(PageContainer):
         )
 
         self.content = container
-        self.logger.warning("self.aside: ADDED")
 
     def _bind_states(self) -> None:
         self.state.subscribe("categories", self._update_ui)
+        self.state.subscribe("active_category", self._update_ui)
 
     def _attach_events(self) -> None:
-        pass
+        for item in self.aside.content.controls[1:]:
+            item.on_click = lambda e: self.state.set("active_category", item.data["id"])
 
     def _update_ui(self, state_key=None, value=None) -> None:
         if state_key == "categories":
@@ -162,6 +164,9 @@ class ServicesCatalogPage(PageContainer):
                 self._build_aside_controls()
             else:
                 self.logger.warning("Skipping _build_aside_controls() because self.aside.content is not ready.")
+        elif state_key == "active_category":
+            asyncio.run(self.controller.get_services(self.state))
+            self.state.set("is_processing", False)
 
         self.update()
 
@@ -175,7 +180,10 @@ class ServicesCatalogPage(PageContainer):
         menu = [
             ft.TextButton(
                 text=category["name"],
-                data={}
+                tooltip=category["description"],
+                data={
+                    "id": category["id"],
+                }
             )
             for category in self.state.get("categories", [])
         ]
