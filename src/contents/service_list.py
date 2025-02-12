@@ -37,7 +37,7 @@ class ProductCard(ft.Container):
         )
 
 
-class ProductCatalogPage(PageContainer):
+class ServicesCatalogPage(PageContainer):
     def __init__(self, app_manager):
         super().__init__()
         self._app_manager = app_manager
@@ -148,7 +148,6 @@ class ProductCatalogPage(PageContainer):
         )
 
         self.content = container
-        self.update()
         self.logger.warning("self.aside: ADDED")
 
     def _bind_states(self) -> None:
@@ -159,7 +158,10 @@ class ProductCatalogPage(PageContainer):
 
     def _update_ui(self, state_key=None, value=None) -> None:
         if state_key == "categories":
-            self._build_aside_controls()
+            if self.aside.content:
+                self._build_aside_controls()
+            else:
+                self.logger.warning("Skipping _build_aside_controls() because self.aside.content is not ready.")
 
         self.update()
 
@@ -205,9 +207,9 @@ class ProductCatalogPage(PageContainer):
         else:
             pass
 
-def product_catalog_page(app_manager):
+def services_catalog_page(app_manager):
     app_manager.page.title_text = "Product Catalog"
-    return ProductCatalogPage(app_manager)
+    return ServicesCatalogPage(app_manager)
 
 
 def main(page: ft.Page):
@@ -215,7 +217,7 @@ def main(page: ft.Page):
     page.padding = 0
     page.bgcolor = "#F5F5F9"
 
-    page.add(product_catalog_page(None))
+    page.add(services_catalog_page(None))
 
 
 if __name__ == "__main__":

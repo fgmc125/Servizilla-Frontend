@@ -110,7 +110,7 @@ class Nav(BaseUIComponent):
             height=32,
         )
 
-        avatar_url = f"/assets/male_default_avatar.png"
+        avatar_url = f"/male_default_avatar.png"
         self.avatar_me = Container(
             content=ft.Stack(
                 [
