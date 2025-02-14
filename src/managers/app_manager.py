@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 import flet as ft
 
@@ -7,7 +8,7 @@ from handlers.layout_handler import LayoutHandler
 from handlers.session_handler import SessionHandler
 from handlers.resize_handler import ResizeHandler
 from handlers.state_handler import StateHandler
-
+from services.auth_service import AuthService
 
 class AppManager:
     def __init__(self):
@@ -45,7 +46,7 @@ class AppManager:
 
     def initialize_app(self):
         self.logger.info("Initializing the application")
-        self.page.title = "Mi App Prototipo"
+        self.page.title_text = "Mi App Prototipo"
         self.page.spacing = 0
         self.page.padding = ft.padding.all(0)
         self.page.bgcolor = '#F4F5F6'
@@ -65,7 +66,7 @@ class AppManager:
 
         self.page.on_resized = self.resize_handler.on_resized
 
-        self._get_token_stored()
+        asyncio.run(self._get_token_stored())
         self.state_handler.subscribe("access_token", self._token_store)
         self.state_handler.subscribe("refresh_token", self._token_store)
 
@@ -80,9 +81,12 @@ class AppManager:
         self.logger.info(f"Navigating to route: {route}")
         self.page.go(route)
 
-    def load_layout(self, route: str, callback):
-        self.logger.debug(f"Loading layout for route: {route}")
-        self.layout_handler.load_layout(route, callback)
+    def load_layout(self, route: str, callback, params=None):
+        self.logger.info(f"Received params in LayoutHandler: {params} (type: {type(params)})")
+        self.logger.debug(f"Loading layout for route: {route} with params: {params}")
+
+        self.logger.info(f"Passing params to LayoutHandler.load_layout(): {params} (type: {type(params)})")
+        self.layout_handler.load_layout(route, callback, params=params)
 
     def is_authenticated(self) -> bool:
         self.logger.debug(f"[IS AUTHENTICATED?]{self.state_handler.get("is_authenticated")}")
@@ -106,12 +110,41 @@ class AppManager:
     def set_state(self, key: str, value):
         self.state_handler.set(key, value)
 
+    def subscribe_state(self, key: str, callback):
+        self.state_handler.subscribe(key, callback)
+
     def _token_store(self, key, value):
         self.page.client_storage.set(f"servizilla.{key}", value)
 
-    def _get_token_stored(self):
-        access_token = self.page.client_storage.get("servizilla.access_token")
-        refresh_token = self.page.client_storage.get("servizilla.refresh_token")
+    async def _get_token_stored(self):
+        self.logger.info(f"access_token 2: {
+        self.page.client_storage.contains_key('servizilla.access_token')
+        }")
+
+        success = False
+
+        access_token = None
+        refresh_token = None
+
+        if self.page.client_storage.contains_key("servizilla.access_token"):
+            access_token = self.page.client_storage.get("servizilla.access_token")
+
+        if self.page.client_storage.contains_key("servizilla.refresh_token"):
+            refresh_token = self.page.client_storage.get("servizilla.refresh_token")
+
+        if access_token and refresh_token:
+            user_info = await AuthService.get_user_info(access_token)
+
+            if user_info.get("success"):
+                success = True
+                self.state_handler.register("user_info", user_info["user"])
+            else:
+                self.logger.warning("Token inválido o expirado, el usuario no está autenticado")
+
+        self.state_handler.register("is_authenticated", success)
+
+        self.logger.info(f"access_token: {access_token}, refresh_token: {refresh_token}")
+        self.logger.info(f"KEYS: {self.page.client_storage.get_keys('servizilla.')}")
 
         self.state_handler.register("access_token", access_token)
         self.state_handler.register("refresh_token", refresh_token)

@@ -115,3 +115,93 @@ class AuthService:
                     "error": f"Error de conexión: {str(e)}",
                     "status_code": 0
                 }
+
+    @staticmethod
+    async def get_user_info(access_token: str) -> dict:
+        url = f"{BASE_URL}/userinfo/"
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(url, headers=headers)
+
+                try:
+                    data = response.json()
+                except ValueError:
+                    return {
+                        "success": False,
+                        "error": "Error inesperado en el servidor.",
+                        "status_code": response.status_code
+                    }
+
+                if response.status_code == 200:
+                    return {
+                        "success": True,
+                        "user": data
+                    }
+
+                elif response.status_code == 401:
+                    return {
+                        "success": False,
+                        "error": "Token inválido o expirado.",
+                        "status_code": 401
+                    }
+
+                else:
+                    return {
+                        "success": False,
+                        "error": data.get("error", "Error desconocido."),
+                        "status_code": response.status_code
+                    }
+
+            except httpx.RequestError as e:
+                return {
+                    "success": False,
+                    "error": f"Error de conexión: {str(e)}",
+                    "status_code": 0
+                }
+
+    @staticmethod
+    async def logout(access_token: str) -> dict:
+        url = f"{BASE_URL}/token/revoke/"
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(url, headers=headers)
+
+                try:
+                    data = response.json()
+                except ValueError:
+                    return {
+                        "success": False,
+                        "error": "Error inesperado en el servidor.",
+                        "status_code": response.status_code
+                    }
+
+                if response.status_code == 200:
+                    return {
+                        "success": True,
+                        "message": "Logout exitoso."
+                    }
+
+                elif response.status_code == 401:
+                    return {
+                        "success": False,
+                        "error": "Token inválido o expirado.",
+                        "status_code": 401
+                    }
+
+                else:
+                    return {
+                        "success": False,
+                        "error": data.get("error", "Error desconocido."),
+                        "status_code": response.status_code
+                    }
+
+            except httpx.RequestError as e:
+                return {
+                    "success": False,
+                    "error": f"Error de conexión: {str(e)}",
+                    "status_code": 0
+                }

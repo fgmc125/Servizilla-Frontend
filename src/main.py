@@ -10,7 +10,7 @@ except:
     from utils.logger import setup_logger
     from managers.app_manager import AppManager
 
-logger = setup_logger(__name__, level=logging.INFO, log_to_file=False)
+logger = setup_logger(__name__, level=logging.DEBUG, log_to_file=False)
 
 
 def main(page: Page):

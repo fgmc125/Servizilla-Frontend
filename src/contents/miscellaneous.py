@@ -9,7 +9,7 @@ from flet import (
 
 
 def create_error_page(app_manager, code, title, message):
-    app_manager.page.title = f"{title}"
+    app_manager.page.title_text = f"{title}"
     app_manager.page.vertical_alignment = MainAxisAlignment.CENTER
     app_manager.page.horizontal_alignment = CrossAxisAlignment.CENTER
 

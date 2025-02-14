@@ -67,7 +67,7 @@ El objetivo principal del frontend es proporcionar una interfaz moderna y fácil
   │   │   └── common_layout.py      # Estructura común para páginas generales.
   │   │   └── dashboard_layout.py   # Estructura específica para el dashboard.
   │   │   └── faq_layout.py         # Estructura para la página de preguntas frecuentes.
-  │   │   └── home_layout.py        # Layout para la página principal.
+  │   │   └── basic_layout.py        # Layout para la página principal.
   │   │   └── layout.py             # Base para manejar y renderizar layouts dinámicamente.
   │   ├── managers/                 # Objetos para manejar lógica principal y el flujo del sistema.
   │   │   └── app_manager.py        # Orquestador principal que controla el estado y las interacciones.

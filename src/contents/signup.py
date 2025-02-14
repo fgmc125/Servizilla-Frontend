@@ -86,13 +86,22 @@ class SignupPage(PageContainer):
         self.state.register("field_errors", {})
         self.state.register("general_error", None)
 
-        self.state.subscribe("is_processing", self.update_ui)
-        self.state.subscribe("field_errors", self.update_ui)
-        self.state.subscribe("general_error", self.update_ui)
+        self.state.subscribe("is_processing", self._update_ui)
+        self.state.subscribe("field_errors", self._update_ui)
+        self.state.subscribe("general_error", self._update_ui)
 
-        self.build_ui()
+        self._build_ui()
 
-    def build_ui(self):
+    def _register_states(self) -> None:
+        pass
+
+    def _bind_states(self) -> None:
+        pass
+
+    def _attach_events(self) -> None:
+        pass
+
+    def _build_ui(self):
         username_input = ft.Container(
             content=self.username_input,
             padding=ft.padding.only(bottom=10),
@@ -196,7 +205,7 @@ class SignupPage(PageContainer):
 
         self.content = container
 
-    def update_ui(self, state_key=None, value=None):
+    def _update_ui(self, state_key=None, value=None):
         if state_key is None or state_key in ["is_processing", "field_errors", "general_error"]:
             self.signup_button.disabled = self.state.get("is_processing")
             self.signup_button.text = "Verificando..." if self.state.get("is_processing") else "Registrarse"
@@ -284,5 +293,5 @@ class SignupPage(PageContainer):
 
 
 def signup_page(app_manager):
-    app_manager.page.title = "Signup Page"
+    app_manager.page.title_text = "Signup Page"
     return SignupPage(app_manager)
